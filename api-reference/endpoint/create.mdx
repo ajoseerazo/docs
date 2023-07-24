@@ -1,6 +1,6 @@
 ---
 title: "Create Disbursement"
-api: "POST https://api.getmeru.com/external/disbursement"
+api: "POST https://api.getmeru.com/external/disbursements"
 description: "This endpoint allows to initiate a disbursement process"
 ---
 
@@ -33,7 +33,7 @@ description: "This endpoint allows to initiate a disbursement process"
 <RequestExample>
 
 ```bash cURL
-curl --location --request POST 'https://api.getmeru.com/external/disbursement' \
+curl --location --request POST 'https://api.getmeru.com/external/disbursements' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Basic <token>' \
 --data-raw '{
@@ -55,7 +55,7 @@ curl --location --request POST 'https://api.getmeru.com/external/disbursement' \
 ```
 
 ```js Javascript
-curl --location --request POST 'https://api.getmeru.com/external/disbursement' \
+curl --location --request POST 'https://api.getmeru.com/external/disbursements' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Token <token>' \
 --data-raw '{

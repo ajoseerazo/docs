@@ -1,0 +1,114 @@
+---
+title: "Get Payment Status"
+api: "GET https://stablecoin-api-stage.getmeru.com/payments/:payment-id"
+description: "This endpoint allows merchants to check the status of a payment using the payment ID"
+---
+
+### Params
+
+<ParamField path="payment-id" type="string" required>
+  The payment ID returned when creating the QR code payment
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the call was successful.
+</ResponseField>
+
+<ResponseField name="paymentId" type="string">
+  The unique payment identifier.
+</ResponseField>
+
+<ResponseField name="orderId" type="string">
+  The merchant's order identifier.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  The current status of the payment. Possible values: `created`, `paid`, `cancelled`, `expired`.
+</ResponseField>
+
+<ResponseField name="amount" type="number">
+  The total amount (excluding tax) for the payment.
+</ResponseField>
+
+<ResponseField name="taxAmount" type="number">
+  The tax amount for the payment.
+</ResponseField>
+
+<ResponseField name="totalAmount" type="number">
+  The total amount including tax.
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  The ISO 8601 timestamp when the payment was created.
+</ResponseField>
+
+<ResponseField name="expireAt" type="string">
+  The ISO 8601 timestamp when the QR code payment will expire.
+</ResponseField>
+
+<ResponseField name="paidAt" type="string">
+  The ISO 8601 timestamp when the payment was completed (only present if status is `paid`).
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request GET 'https://stablecoin-api-stage.getmeru.com/payments/pay_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Basic <token>'
+```
+
+```js Javascript
+const response = await fetch('https://stablecoin-api-stage.getmeru.com/payments/pay_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Basic <token>'
+  }
+});
+
+const data = await response.json();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "success": true,
+  "paymentId": "pay_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+  "orderId": "ORD-12345",
+  "status": "paid",
+  "amount": 99.99,
+  "taxAmount": 8.99,
+  "totalAmount": 108.98,
+  "createdAt": "2024-01-15T10:00:00Z",
+  "expireAt": "2024-01-15T10:30:00Z",
+  "paidAt": "2024-01-15T10:25:00Z"
+}
+```
+
+</ResponseExample>
+
+### Error Responses
+
+<ResponseExample>
+
+```json 401
+{
+  "success": false,
+  "error": "Unauthorized. Please check your authentication credentials."
+}
+```
+
+```json 404
+{
+  "success": false,
+  "error": "Payment not found."
+}
+```
+
+</ResponseExample> 

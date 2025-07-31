@@ -33,7 +33,16 @@
     },
     {
       "group": "Endpoints",
-      "pages": ["api-reference/endpoint/create", "api-reference/endpoint/get"]
+      "pages": [
+        "api-reference/endpoint/create", 
+        "api-reference/endpoint/get",
+        "api-reference/endpoint/create-qr-payment",
+        "api-reference/endpoint/get-payment"
+      ]
+    },
+    {
+      "group": "Webhooks",
+      "pages": ["api-reference/webhooks"]
     }
   ],
   "api": {

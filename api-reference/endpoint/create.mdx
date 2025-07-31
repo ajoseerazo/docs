@@ -1,13 +1,13 @@
 ---
-title: "Create Disbursement"
-api: "POST https://api.getmeru.com/external/disbursements"
-description: "This endpoint allows to initiate a disbursement process"
+title: "Create Payout"
+api: "POST https://stablecoin-api-stage.getmeru.com/payouts"
+description: "This endpoint allows to initiate a payout process"
 ---
 
 ### Body
 
-<ParamField body="disbursement" type="array" required>
-  This array defines the list of disbursements to process
+<ParamField body="payout" type="array" required>
+  This array defines the list of payouts to process
 
   <Expandable title="Array of objects">
     <ParamField body="email" type="string" required>
@@ -26,18 +26,18 @@ description: "This endpoint allows to initiate a disbursement process"
 </ResponseField>
 
 <ResponseField name="id" type="boolean">
-  The id of the disbursement process. Use this id to check the status of the
+  The id of the payout process. Use this id to check the status of the
   process
 </ResponseField>
 
 <RequestExample>
 
 ```bash cURL
-curl --location --request POST 'https://api.getmeru.com/external/disbursements' \
+curl --location --request POST 'https://stablecoin-api-stage.getmeru.com/payouts' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Basic <token>' \
 --data-raw '{
-    "disbursement": [
+    "payout": [
       {
         "email": "example_1@gmail.com",
         "amount": 10.54
@@ -55,11 +55,11 @@ curl --location --request POST 'https://api.getmeru.com/external/disbursements' 
 ```
 
 ```js Javascript
-curl --location --request POST 'https://api.getmeru.com/external/disbursements' \
+curl --location --request POST 'https://stablecoin-api-stage.getmeru.com/payouts' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Token <token>' \
 --data-raw '{
-    "disbursement": [
+    "payout": [
       {
         "email": "example_1@gmail.com",
         "amount": 10.54

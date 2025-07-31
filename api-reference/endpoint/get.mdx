@@ -1,13 +1,13 @@
 ---
-title: "Get Disbursement"
-api: "GET https://api.getmeru.com/external/disbursements/:disbursement-id"
-description: "This endpoint gets the disbursement and the process status for each user"
+title: "Get Payout"
+api: "GET https://stablecoin-api-stage.getmeru.com/payouts/:payout-id"
+description: "This endpoint gets the payout and the process status for each user"
 ---
 
 ### Params
 
-<ParamField path="disbursement-id" type="string" required>
-  The id of the disbursement to consult
+<ParamField path="payout-id" type="string" required>
+  The id of the payout to consult
 </ParamField>
 
 ### Response
@@ -16,12 +16,12 @@ description: "This endpoint gets the disbursement and the process status for eac
   Indicates whether the call was successful.
 </ResponseField>
 
-<ResponseField name="disbursements" type="array">
-  A list of disbursements statuses
+<ResponseField name="payouts" type="array">
+  A list of payouts statuses
 
-  <Expandable title="Array of disbursements">
+  <Expandable title="Array of payouts">
     <ResponseField name="id" type="string">
-      Id of the disbursement for this user
+      Id of the payout for this user
     </ResponseField>
     <ResponseField name="email" type="string" required>
       User's email who received the money
@@ -35,7 +35,7 @@ description: "This endpoint gets the disbursement and the process status for eac
 <RequestExample>
 
 ```bash cURL
-curl --location --request GET 'https://api.getmeru.com/external/disbursements/:disbursement-id' \
+curl --location --request GET 'https://stablecoin-api-stage.getmeru.com/payouts/:payout-id' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Basic <token>'
 ```
@@ -47,7 +47,7 @@ curl --location --request GET 'https://api.getmeru.com/external/disbursements/:d
 ```json 200
 {
   "success": true,
-  "disbursements": [
+  "payouts": [
     {
       "id": "d4cecb04-6540-459b-bb2e-354709c913b9",
       "email": "example_1@gmail.com",

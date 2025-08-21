@@ -41,7 +41,7 @@ description: "This endpoint allows merchants to create QR code payments for paym
 <RequestExample>
 
 ```bash cURL
-curl --location --request POST 'https://stablecoin-api.getmeru.com/qr-code-payments' \
+curl --location --request POST 'https://stablecoin-api.getmeru.com//api/v1/payins/qr-code' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Basic <token>' \
 --data-raw '{
@@ -52,7 +52,7 @@ curl --location --request POST 'https://stablecoin-api.getmeru.com/qr-code-payme
 ```
 
 ```js Javascript
-const response = await fetch('https://stablecoin-api.getmeru.com/qr-code-payments', {
+const response = await fetch('https://stablecoin-api.getmeru.com//api/v1/payins/qr-code', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',

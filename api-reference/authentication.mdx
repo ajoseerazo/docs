@@ -3,8 +3,22 @@ title: "Authentication"
 description: "Authentication process"
 ---
 
-Basic authentication is a simple authentication scheme built into the HTTP protocol. To use it, send your HTTP requests with an Authorization header that contains the word Basic followed by a space and a base64-encoded string `username:password`.
+# API Key Authentication
+
+Meru APIs use **API key authentication** to secure access to our services. This is a simple and secure method where you include your unique API key in the request headers.
+
+## How It Works
+
+1. **Obtain your API key** from your Meru dashboard or account settings
+2. **Include the API key** in the `api-key` header of your HTTP requests
+3. **The server validates** your API key and grants access to the requested resources
+
+## Implementation
+
+### Request Header Format
+
+Include your API key in the `api-key` header using this format:
 
 ```js
-'Authorization': 'Basic base64(username:password)'
+'api-key': '<api-key>'
 ```

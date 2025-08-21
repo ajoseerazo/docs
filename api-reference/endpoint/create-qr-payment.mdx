@@ -43,7 +43,7 @@ description: "This endpoint allows merchants to create QR code payments for paym
 ```bash cURL
 curl --location --request POST 'https://stablecoin-api.getmeru.com/api/v1/payins/qr-code' \
 --header 'Content-Type: application/json' \
---header 'Authorization: Basic <token>' \
+--header 'api-key: <api-key>' \
 --data-raw '{
     "orderId": "ORD-12345",
     "amount": 99.99,

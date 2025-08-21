@@ -35,7 +35,7 @@ description: "This endpoint allows to initiate a payout process"
 ```bash cURL
 curl --location --request POST 'https://stablecoin-api.getmeru.com/payouts' \
 --header 'Content-Type: application/json' \
---header 'Authorization: Basic <token>' \
+--header 'api-key: <api-key>' \
 --data-raw '{
     "payout": [
       {

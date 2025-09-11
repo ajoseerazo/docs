@@ -14,8 +14,16 @@ description: "This endpoint allows merchants to create QR code payments for paym
   The total amount to be paid (excluding tax). Must be greater than 0.
 </ParamField>
 
-<ParamField body="taxAmount" type="number" required>
-  The tax amount for the order. Must be greater than or equal to 0.
+<ParamField body="taxAmount" type="number">
+  The tax amount for the order. Must be greater than or equal to 0. This field is optional.
+</ParamField>
+
+<ParamField body="paymentMethod" type="string" required>
+  The payment method to use for the QR code. Must be either "meru_qr_code" or "bo_qr_code".
+</ParamField>
+
+<ParamField body="onBehalfOf" type="string">
+  The identifier of the entity on whose behalf the payment is being made. This field is optional.
 </ParamField>
 
 ### Response
@@ -47,7 +55,8 @@ curl --location --request POST 'https://stablecoin-api.getmeru.com/api/v1/payins
 --data-raw '{
     "orderId": "ORD-12345",
     "amount": 99.99,
-    "taxAmount": 8.99
+    "taxAmount": 8.99,
+    "paymentMethod": "meru_qr_code"
 }'
 ```
 
@@ -61,7 +70,8 @@ const response = await fetch('https://stablecoin-api.getmeru.com/api/v1/payins/q
   body: JSON.stringify({
     orderId: 'ORD-12345',
     amount: 99.99,
-    taxAmount: 8.99
+    taxAmount: 8.99,
+    paymentMethod: 'meru_qr_code'
   })
 });
 
@@ -100,7 +110,6 @@ const data = await response.json();
   "error": "Unauthorized. Please check your authentication credentials."
 }
 ```
-
 ```json 422
 {
   "success": false,

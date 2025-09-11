@@ -1,0 +1,94 @@
+---
+title: "Get Payout"
+api: "GET https://stablecoin-api.getmeru.com/api/v1/payouts/:payout-id"
+description: "This endpoint gets the payout and the process status for each user"
+---
+
+### Params
+
+<ParamField path="payout-id" type="string" required>
+  The id of the payout to consult
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the call was successful.
+</ResponseField>
+
+<ResponseField name="payouts" type="array">
+  A list of payouts statuses
+
+  <Expandable title="Array of payouts">
+    <ResponseField name="id" type="string">
+      Id of the payout for this user
+    </ResponseField>
+    <ResponseField name="email" type="string" required>
+      User's email who received the money
+    </ResponseField>
+    <ResponseField name="amount" type="number" required>
+      Amount sent
+    </ResponseField>
+    <ResponseField name="status" type="string" required>
+      Status of the payout (COMPLETED, FAILED, PENDING)
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request GET 'https://stablecoin-api.getmeru.com/api/v1/payouts/:payout-id' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "success": true,
+  "payouts": [
+    {
+      "id": "d4cecb04-6540-459b-bb2e-354709c913b9",
+      "email": "example_1@gmail.com",
+      "amount": 100.00,
+      "status": "COMPLETED"
+    },
+    {
+      "id": "d4cecb04-6540-412b-bb2e-354709c913b9",
+      "email": "example_2@gmail.com",
+      "amount": 200.00,
+      "status": "COMPLETED"
+    },
+    {
+      "id": "c9cecb04-6540-412b-bb2e-354709c913b9",
+      "email": "example_3@gmail.com",
+      "amount": 150.00,
+      "status": "FAILED"
+    }
+  ]
+}
+```
+
+</ResponseExample>
+
+### Error Responses
+
+<ResponseExample>
+
+```json 401
+{
+  "success": false,
+  "error": "Unauthorized. Please check your authentication credentials."
+}
+```
+
+```json 404
+{
+  "success": false,
+  "error": "Payout not found."
+}
+```

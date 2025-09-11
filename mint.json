@@ -32,12 +32,24 @@
       "pages": ["api-reference/authentication"]
     },
     {
-      "group": "Endpoints",
+      "group": "Quotes",
       "pages": [
-        "api-reference/endpoint/create", 
-        "api-reference/endpoint/get",
-        "api-reference/endpoint/create-qr-payment",
-        "api-reference/endpoint/get-payment"
+        "api-reference/quotes/quotes",
+        "api-reference/quotes/get-quote"
+      ]
+    },
+    {
+      "group": "Payouts",
+      "pages": [
+        "api-reference/payouts/create",
+        "api-reference/payouts/get"
+      ]
+    },
+    {
+      "group": "Payins",
+      "pages": [
+        "api-reference/payins/create-qr-payment",
+        "api-reference/payins/get-payment"
       ]
     },
     {

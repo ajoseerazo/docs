@@ -1,0 +1,95 @@
+---
+title: "Create Quote"
+api: "POST https://stablecoin-api.getmeru.com/quotes"
+description: "This endpoint allows to get a quote for currency conversion and transfer costs"
+---
+
+### Body
+
+<ParamField body="amount" type="number" required>
+  The amount to convert from the source currency
+</ParamField>
+
+<ParamField body="from" type="string" required>
+  The source currency code (e.g., "USDC")
+</ParamField>
+
+<ParamField body="to" type="string" required>
+  The destination currency code (e.g., "COP")
+</ParamField>
+
+### Response
+
+<ResponseField name="id" type="string">
+  Unique identifier for this quote
+</ResponseField>
+
+<ResponseField name="quote" type="number">
+  The exchange rate for the conversion
+</ResponseField>
+
+<ResponseField name="fixedCost" type="number">
+  Fixed cost in the source currency for the transfer
+</ResponseField>
+
+<ResponseField name="senderAmount" type="number">
+  The amount the sender will pay in the source currency
+</ResponseField>
+
+<ResponseField name="receiverAmount" type="number">
+  The amount the receiver will receive in the destination currency
+</ResponseField>
+
+<ResponseField name="minAmount" type="number">
+  Minimum amount required for this conversion
+</ResponseField>
+
+<ResponseField name="validUntil" type="string">
+  The timestamp until which this quote is valid (ISO 8601 format)
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request POST 'https://stablecoin-api.getmeru.com/quotes' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data-raw '{
+    "amount": 1000,
+    "from": "USDC",
+    "to": "COP"
+}'
+```
+
+```js Javascript
+const response = await fetch('https://stablecoin-api.getmeru.com/quotes', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'api-key': '<api-key>'
+  },
+  body: JSON.stringify({
+    amount: 1000,
+    from: "USDC",
+    to: "COP"
+  })
+});
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "id": "efaaf971-6d8b-4f36-be36-187c9f68fc06",
+  "quote": 3737.7592,
+  "fixedCost": 4000,
+  "senderAmount": 1000,
+  "receiverAmount": 3733879.2,
+  "minAmount": 1,
+  "validUntil": "2024-12-31T23:59:59Z"
+}
+```
+
+</ResponseExample>

@@ -18,8 +18,8 @@ description: "This endpoint allows to initiate a payout process"
   Amount to send in the source currency
 </ParamField>
 
-<ParamField body="source" type="object" required>
-  Source payment details
+<ParamField body="source" type="object">
+  Source payment details. Required if deductFromBalance is false
 
   <Expandable title="Source object">
     <ParamField body="paymentRail" type="string" required>

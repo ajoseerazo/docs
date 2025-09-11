@@ -1,13 +1,13 @@
 ---
-title: "Get Payout"
+title: "Get Payout Status"
 api: "GET https://stablecoin-api.getmeru.com/api/v1/payouts/:payout-id"
-description: "This endpoint gets the payout and the process status for each user"
+description: "This endpoint allows merchants to check the status of a payout using the payout ID"
 ---
 
 ### Params
 
 <ParamField path="payout-id" type="string" required>
-  The id of the payout to consult
+  The payout ID returned when creating the payout
 </ParamField>
 
 ### Response
@@ -16,31 +16,100 @@ description: "This endpoint gets the payout and the process status for each user
   Indicates whether the call was successful.
 </ResponseField>
 
-<ResponseField name="payouts" type="array">
-  A list of payouts statuses
+<ResponseField name="id" type="string">
+  The unique payout identifier.
+</ResponseField>
 
-  <Expandable title="Array of payouts">
-    <ResponseField name="id" type="string">
-      Id of the payout for this user
+<ResponseField name="onBehalfOf" type="string">
+  The identifier of the user or entity on whose behalf the payout is being made.
+</ResponseField>
+
+<ResponseField name="companyId" type="string">
+  The company identifier associated with this payout.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  The current status of the payout. Possible values: `created`, `processing`, `completed`, `failed`, `cancelled`.
+</ResponseField>
+
+<ResponseField name="amount" type="number">
+  The amount in the source currency.
+</ResponseField>
+
+<ResponseField name="source" type="object">
+  Source payment details
+  
+  <Expandable title="Source object">
+    <ResponseField name="paymentRail" type="string">
+      The payment rail used (e.g., "stellar")
     </ResponseField>
-    <ResponseField name="email" type="string" required>
-      User's email who received the money
+    <ResponseField name="currency" type="string">
+      The source currency (e.g., "usdc")
     </ResponseField>
-    <ResponseField name="amount" type="number" required>
-      Amount sent
-    </ResponseField>
-    <ResponseField name="status" type="string" required>
-      Status of the payout (COMPLETED, FAILED, PENDING)
+    <ResponseField name="address" type="string">
+      The source wallet address
     </ResponseField>
   </Expandable>
+</ResponseField>
+
+<ResponseField name="destination" type="object">
+  Destination payment details. The structure depends on the destination type.
+  
+  <Expandable title="Destination object">
+    <ResponseField name="type" type="string">
+      The destination type: "bank", "crypto_wallet", or "qr_code"
+    </ResponseField>
+    <ResponseField name="currency" type="string">
+      The destination currency
+    </ResponseField>
+    <ResponseField name="details" type="object">
+      Destination-specific details based on the type
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="deductFromBalance" type="boolean">
+  Whether the amount was deducted from the account balance.
+</ResponseField>
+
+<ResponseField name="quoteId" type="string">
+  The quote ID used for exchange rate calculation (if provided).
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  The ISO 8601 timestamp when the payout was created.
+</ResponseField>
+
+<ResponseField name="completedAt" type="string">
+  The ISO 8601 timestamp when the payout was completed (only present if status is `completed`).
+</ResponseField>
+
+<ResponseField name="failedAt" type="string">
+  The ISO 8601 timestamp when the payout failed (only present if status is `failed`).
+</ResponseField>
+
+<ResponseField name="failureReason" type="string">
+  The reason for failure (only present if status is `failed`).
 </ResponseField>
 
 <RequestExample>
 
 ```bash cURL
-curl --location --request GET 'https://stablecoin-api.getmeru.com/api/v1/payouts/:payout-id' \
+curl --location --request GET 'https://stablecoin-api.getmeru.com/api/v1/payouts/3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1' \
 --header 'Content-Type: application/json' \
 --header 'api-key: <api-key>'
+```
+
+```js Javascript
+const response = await fetch('https://stablecoin-api.getmeru.com/api/v1/payouts/3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': 'Basic <token>'
+  }
+});
+
+const data = await response.json();
 ```
 
 </RequestExample>
@@ -50,26 +119,43 @@ curl --location --request GET 'https://stablecoin-api.getmeru.com/api/v1/payouts
 ```json 200
 {
   "success": true,
-  "payouts": [
-    {
-      "id": "d4cecb04-6540-459b-bb2e-354709c913b9",
-      "email": "example_1@gmail.com",
-      "amount": 100.00,
-      "status": "COMPLETED"
-    },
-    {
-      "id": "d4cecb04-6540-412b-bb2e-354709c913b9",
-      "email": "example_2@gmail.com",
-      "amount": 200.00,
-      "status": "COMPLETED"
-    },
-    {
-      "id": "c9cecb04-6540-412b-bb2e-354709c913b9",
-      "email": "example_3@gmail.com",
-      "amount": 150.00,
-      "status": "FAILED"
+  "id": "3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+  "onBehalfOf": "123",
+  "companyId": "123",
+  "status": "completed",
+  "amount": 1000,
+  "source": {
+    "paymentRail": "stellar",
+    "currency": "usdc",
+    "address": "123123"
+  },
+  "destination": {
+    "type": "bank",
+    "currency": "cop",
+    "details": {
+      "country": "CO",
+      "accountType": "savings",
+      "bankAccountNumber": "1234567890",
+      "bankCode": "876",
+      "beneficiary": {
+        "email": "beneficiary@example.com",
+        "documentType": "CC",
+        "documentNumber": "12345678",
+        "firstName": "John",
+        "lastName": "Doe",
+        "phone": "+573001234567",
+        "city": "Bogotá",
+        "state": "Cundinamarca",
+        "address": "Calle 123 #45-67",
+        "country": "CO",
+        "type": "individual"
+      }
     }
-  ]
+  },
+  "deductFromBalance": true,
+  "quoteId": "efaaf971-6d8b-4f36-be36-187c9f68fc06",
+  "createdAt": "2024-01-15T10:00:00Z",
+  "completedAt": "2024-01-15T10:25:00Z"
 }
 ```
 
@@ -92,3 +178,5 @@ curl --location --request GET 'https://stablecoin-api.getmeru.com/api/v1/payouts
   "error": "Payout not found."
 }
 ```
+
+</ResponseExample>

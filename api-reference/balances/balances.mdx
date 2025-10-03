@@ -1,0 +1,104 @@
+---
+title: "Get Company Balances"
+api: "GET https://stablecoin-api.sandbox.getmeru.com/api/v1/companies/balances"
+description: "This endpoint retrieves the current balance for a company across all supported currencies"
+---
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the call was successful.
+</ResponseField>
+
+<ResponseField name="companyId" type="string">
+  The company identifier for which the balances are returned.
+</ResponseField>
+
+<ResponseField name="balances" type="object">
+  Object containing balances for each supported currency
+  <Expandable title="Balances object">
+    <ResponseField name="bob" type="number">
+      Balance in Bolivian Boliviano (BOB)
+    </ResponseField>
+    <ResponseField name="ars" type="number">
+      Balance in Argentine Peso (ARS)
+    </ResponseField>
+    <ResponseField name="brl" type="number">
+      Balance in Brazilian Real (BRL)
+    </ResponseField>
+    <ResponseField name="usdc" type="number">
+      Balance in USD Coin (USDC)
+    </ResponseField>
+    <ResponseField name="usdt" type="number">
+      Balance in Tether (USDT)
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="lastUpdated" type="string">
+  The ISO 8601 timestamp when the balances were last updated.
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request GET 'https://stablecoin-api.sandbox.getmeru.com/api/v1/companies/balances' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>'
+```
+
+```js Javascript
+const response = await fetch(
+  "https://stablecoin-api.sandbox.getmeru.com/api/v1/companies/balances",
+  {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": "<api-key>",
+    },
+  }
+);
+
+const data = await response.json();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "success": true,
+  "companyId": "123",
+  "balances": {
+    "bob": 15000.5,
+    "ars": 250000.75,
+    "brl": 5000.25,
+    "usdc": 1000.0,
+    "usdt": 500.0
+  },
+  "lastUpdated": "2024-01-15T10:30:00Z"
+}
+```
+
+</ResponseExample>
+
+### Error Responses
+
+<ResponseExample>
+
+```json 401
+{
+  "success": false,
+  "error": "Unauthorized. Please check your authentication credentials."
+}
+```
+
+```json 404
+{
+  "success": false,
+  "error": "Company not found."
+}
+```
+
+</ResponseExample>

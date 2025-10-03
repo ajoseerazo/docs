@@ -32,18 +32,21 @@
       "pages": ["api-reference/authentication"]
     },
     {
-      "group": "Quotes",
+      "group": "Balances",
       "pages": [
-        "api-reference/quotes/quotes",
-        "api-reference/quotes/get-quote"
+        "api-reference/balances/balances"
       ]
+    },
+    {
+      "group": "Quotes",
+      "pages": ["api-reference/quotes/quotes", "api-reference/quotes/get-quote"]
     },
     {
       "group": "Payouts",
       "pages": [
         "api-reference/payouts/create",
-        "api-reference/payouts/get",
-        "api-reference/payouts/preview-qr-code"
+        "api-reference/payouts/preview-qr-code",
+        "api-reference/payouts/get"
       ]
     },
     {

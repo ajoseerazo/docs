@@ -1,6 +1,6 @@
 ---
 title: "Get Quote"
-api: "GET https://stablecoin-api.getmeru.com/api/v1/quotes/:quote-id"
+api: "GET https://stablecoin-api.sandbox.getmeru.com/api/v1/quotes/:quote-id"
 description: "This endpoint retrieves a specific quote by its ID"
 ---
 
@@ -47,13 +47,13 @@ description: "This endpoint retrieves a specific quote by its ID"
 <RequestExample>
 
 ```bash cURL
-curl --location --request GET 'https://stablecoin-api.getmeru.com/api/v1/quotes/efaaf971-6d8b-4f36-be36-187c9f68fc06' \
+curl --location --request GET 'https://stablecoin-api.sandbox.getmeru.com/api/v1/quotes/efaaf971-6d8b-4f36-be36-187c9f68fc06' \
 --header 'Content-Type: application/json' \
 --header 'api-key: <api-key>'
 ```
 
 ```js Javascript
-const response = await fetch('https://stablecoin-api.getmeru.com/api/v1/quotes/efaaf971-6d8b-4f36-be36-187c9f68fc06', {
+const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/api/v1/quotes/efaaf971-6d8b-4f36-be36-187c9f68fc06', {
   method: 'GET',
   headers: {
     'Content-Type': 'application/json',

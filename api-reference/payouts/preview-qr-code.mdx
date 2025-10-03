@@ -1,0 +1,146 @@
+---
+title: "Preview QR Code"
+api: "POST https://stablecoin-api.getmeru.com/payouts/qr-codes/preview"
+description: "This endpoint allows you to preview QR code details before processing a payout"
+---
+
+### Body
+
+<ParamField body="qrCodeHash" type="string" required>
+  The QR code hash to preview details for
+</ParamField>
+
+<ParamField body="country" type="string" required>
+  The country code for the QR code (e.g., "BO")
+</ParamField>
+
+### Response
+
+<ResponseField name="qrCodeId" type="string">
+  The QR code identifier
+</ResponseField>
+
+<ResponseField name="isOpen" type="boolean">
+  Indicates whether the QR code is open for any amount (true when localAmount is 0)
+</ResponseField>
+
+<ResponseField name="localAmount" type="number">
+  The local currency amount for the QR code
+</ResponseField>
+
+<ResponseField name="currency" type="string">
+  The local currency code (e.g., "BOB")
+</ResponseField>
+
+<ResponseField name="usdcAmount" type="number">
+  The equivalent USDC amount
+</ResponseField>
+
+<ResponseField name="usdcRate" type="number">
+  The exchange rate used for USDC conversion
+</ResponseField>
+
+<ResponseField name="recipientName" type="string">
+  The name of the recipient
+</ResponseField>
+
+<ResponseField name="recipientLegalId" type="string">
+  The legal ID (CI) of the recipient
+</ResponseField>
+
+
+<ResponseField name="isExpired" type="boolean">
+  Indicates whether the QR code has expired
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Description or notes for the QR code payment
+</ResponseField>
+
+<ResponseField name="destinationAccountNumber" type="string">
+  The destination account number for the payment
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request POST 'https://stablecoin-api.getmeru.com/payouts/qr-codes/preview' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data-raw '{
+    "qrCodeHash": "abc123def456",
+    "country": "BO"
+}'
+```
+
+```js Javascript
+const response = await fetch('https://stablecoin-api.getmeru.com/payouts/qr-codes/preview', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'api-key': '<api-key>'
+  },
+  body: JSON.stringify({
+    qrCodeHash: 'abc123def456',
+    country: 'BO'
+  })
+});
+
+const data = await response.json();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "qrCodeId": "QR123456789",
+  "isOpen": false,
+  "localAmount": 100.50,
+  "currency": "BOB",
+  "usdcAmount": 14.25,
+  "usdcRate": 7.05,
+  "recipientName": "Juan Pérez",
+  "recipientLegalId": "12345678",
+  "isExpired": false,
+  "description": "Payment for services",
+  "destinationAccountNumber": "1234567890"
+}
+```
+
+</ResponseExample>
+
+### Error Responses
+
+<ResponseExample>
+
+```json 400
+{
+  "success": false,
+  "error": "Invalid QR code hash format"
+}
+```
+
+```json 401
+{
+  "success": false,
+  "error": "Unauthorized. Please check your authentication credentials."
+}
+```
+
+```json 404
+{
+  "success": false,
+  "error": "QR code not found"
+}
+```
+
+```json 410
+{
+  "success": false,
+  "error": "QR code has expired"
+}
+```
+
+</ResponseExample>

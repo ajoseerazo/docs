@@ -42,7 +42,8 @@
       "group": "Payouts",
       "pages": [
         "api-reference/payouts/create",
-        "api-reference/payouts/get"
+        "api-reference/payouts/get",
+        "api-reference/payouts/preview-qr-code"
       ]
     },
     {

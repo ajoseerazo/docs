@@ -1,6 +1,6 @@
 ---
 title: "Create Quote"
-api: "POST https://stablecoin-api.sandbox.getmeru.com/api/v1/quotes"
+api: "POST https://stablecoin-api.sandbox.getmeru.com/v1/quotes"
 description: "This endpoint allows to get a quote for currency conversion and transfer costs"
 ---
 
@@ -51,7 +51,7 @@ description: "This endpoint allows to get a quote for currency conversion and tr
 <RequestExample>
 
 ```bash cURL
-curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/api/v1/quotes' \
+curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/v1/quotes' \
 --header 'Content-Type: application/json' \
 --header 'api-key: <api-key>' \
 --data-raw '{
@@ -62,7 +62,7 @@ curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/api/v
 ```
 
 ```js Javascript
-const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/api/v1/quotes', {
+const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/v1/quotes', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',

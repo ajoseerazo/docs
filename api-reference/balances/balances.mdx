@@ -1,6 +1,6 @@
 ---
 title: "Get Company Balances"
-api: "GET https://stablecoin-api.sandbox.getmeru.com/api/v1/companies/balances"
+api: "GET https://stablecoin-api.sandbox.getmeru.com/v1/companies/balances"
 description: "This endpoint retrieves the current balance for a company across all supported currencies"
 ---
 
@@ -42,14 +42,14 @@ description: "This endpoint retrieves the current balance for a company across a
 <RequestExample>
 
 ```bash cURL
-curl --location --request GET 'https://stablecoin-api.sandbox.getmeru.com/api/v1/companies/balances' \
+curl --location --request GET 'https://stablecoin-api.sandbox.getmeru.com/v1/companies/balances' \
 --header 'Content-Type: application/json' \
 --header 'api-key: <api-key>'
 ```
 
 ```js Javascript
 const response = await fetch(
-  "https://stablecoin-api.sandbox.getmeru.com/api/v1/companies/balances",
+  "https://stablecoin-api.sandbox.getmeru.com/v1/companies/balances",
   {
     method: "GET",
     headers: {

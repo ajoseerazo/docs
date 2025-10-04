@@ -10,10 +10,6 @@ description: "This endpoint allows to initiate a payout process"
   The identifier of the user or entity on whose behalf the payout is being made
 </ParamField>
 
-<ParamField body="companyId" type="string" required>
-  The company identifier associated with this payout
-</ParamField>
-
 <ParamField body="amount" type="number" required>
   Amount to send in the source currency
 </ParamField>
@@ -149,7 +145,6 @@ curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/api/v
 --header 'api-key: <api-key>' \
 --data-raw '{
     "onBehalfOf": "123",
-    "companyId": "123",
     "amount": 1000,
     "source": {
         "paymentRail": "stellar",
@@ -193,7 +188,6 @@ const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/api/v1/
   },
   body: JSON.stringify({
     onBehalfOf: "123",
-    companyId: "123",
     amount: 1000,
     source: {
       paymentRail: "stellar",

@@ -63,7 +63,8 @@
   ],
   "api": {
     "auth": {
-      "method": "basic"
+      "method": "key",
+      "name": "api-key"
     }
   }
 }

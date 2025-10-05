@@ -1,0 +1,277 @@
+---
+title: "Create Business Application"
+api: "POST https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/applications/business"
+description: "This endpoint creates a business card application with company and representative details"
+---
+
+### Body
+
+<ParamField body="name" type="string" required>
+  Legal name of the business
+</ParamField>
+
+<ParamField body="address" type="object" required>
+  Business address
+  
+  <Expandable title="Address object">
+    <ParamField body="line1" type="string" required>
+      Address line 1 (max 100 characters)
+    </ParamField>
+    <ParamField body="line2" type="string">
+      Address line 2 (max 100 characters)
+    </ParamField>
+    <ParamField body="city" type="string" required>
+      City (max 50 characters)
+    </ParamField>
+    <ParamField body="region" type="string" required>
+      State or region (max 50 characters)
+    </ParamField>
+    <ParamField body="postalCode" type="string" required>
+      Postal code (1-9 characters)
+    </ParamField>
+    <ParamField body="countryCode" type="string" required>
+      Two-letter country code (e.g., "US")
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="entity" type="object" required>
+  Business entity details
+  
+  <Expandable title="Entity object">
+    <ParamField body="name" type="string" required>
+      Entity legal name
+    </ParamField>
+    <ParamField body="type" type="string">
+      Entity type (e.g., "LLC", "Corporation")
+    </ParamField>
+    <ParamField body="description" type="string" required>
+      Business description
+    </ParamField>
+    <ParamField body="industry" type="string" required>
+      Industry sector
+    </ParamField>
+    <ParamField body="registrationNumber" type="string" required>
+      Business registration number
+    </ParamField>
+    <ParamField body="taxId" type="string" required>
+      Tax identification number
+    </ParamField>
+    <ParamField body="website" type="string" required>
+      Company website URL
+    </ParamField>
+    <ParamField body="expectedSpend" type="string">
+      Expected monthly spending
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="initialUser" type="object" required>
+  Primary contact and administrator
+  
+  <Expandable title="Initial User object">
+    <ParamField body="firstName" type="string" required>
+      First name (max 50 characters)
+    </ParamField>
+    <ParamField body="lastName" type="string" required>
+      Last name (max 50 characters)
+    </ParamField>
+    <ParamField body="birthDate" type="string" required>
+      Date of birth (YYYY-MM-DD format)
+    </ParamField>
+    <ParamField body="nationalId" type="string" required>
+      National ID number
+    </ParamField>
+    <ParamField body="countryOfIssue" type="string" required>
+      Two-letter country code
+    </ParamField>
+    <ParamField body="email" type="string" required>
+      Email address
+    </ParamField>
+    <ParamField body="phoneCountryCode" type="string">
+      Phone country code (1-3 characters)
+    </ParamField>
+    <ParamField body="phoneNumber" type="string">
+      Phone number (1-15 characters)
+    </ParamField>
+    <ParamField body="address" type="object" required>
+      Personal address (same structure as business address)
+    </ParamField>
+    <ParamField body="walletAddress" type="string">
+      Blockchain wallet address
+    </ParamField>
+    <ParamField body="ipAddress" type="string" required>
+      IP address
+    </ParamField>
+    <ParamField body="isTermsOfServiceAccepted" type="boolean" required>
+      Must be true
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="representatives" type="array" required>
+  Array of business representatives (same structure as initialUser, but without required IP address and terms acceptance)
+</ParamField>
+
+<ParamField body="ultimateBeneficialOwners" type="array" required>
+  Array of ultimate beneficial owners (UBOs) - individuals who own 25% or more of the business
+</ParamField>
+
+<ParamField body="chainId" type="string">
+  Blockchain chain ID
+</ParamField>
+
+<ParamField body="contractAddress" type="string">
+  Smart contract address
+</ParamField>
+
+<ParamField body="sourceKey" type="string">
+  Source key for tracking
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the call was successful
+</ResponseField>
+
+<ResponseField name="companyId" type="string">
+  The unique company identifier
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Application status
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/applications/business' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data-raw '{
+    "name": "Acme Corporation",
+    "address": {
+        "line1": "456 Business Ave",
+        "city": "San Francisco",
+        "region": "CA",
+        "postalCode": "94103",
+        "countryCode": "US"
+    },
+    "entity": {
+        "name": "Acme Corporation LLC",
+        "type": "LLC",
+        "description": "Technology solutions provider",
+        "industry": "Technology",
+        "registrationNumber": "12345678",
+        "taxId": "98-7654321",
+        "website": "https://acme.com",
+        "expectedSpend": "50000"
+    },
+    "initialUser": {
+        "firstName": "Jane",
+        "lastName": "Smith",
+        "birthDate": "1985-05-20",
+        "nationalId": "987654321",
+        "countryOfIssue": "US",
+        "email": "jane.smith@acme.com",
+        "phoneCountryCode": "1",
+        "phoneNumber": "4155551234",
+        "address": {
+            "line1": "789 Oak St",
+            "city": "San Francisco",
+            "region": "CA",
+            "postalCode": "94103",
+            "countryCode": "US"
+        },
+        "ipAddress": "192.168.1.100",
+        "isTermsOfServiceAccepted": true
+    },
+    "representatives": [],
+    "ultimateBeneficialOwners": [
+        {
+            "firstName": "Jane",
+            "lastName": "Smith",
+            "birthDate": "1985-05-20",
+            "nationalId": "987654321",
+            "countryOfIssue": "US",
+            "email": "jane.smith@acme.com",
+            "address": {
+                "line1": "789 Oak St",
+                "city": "San Francisco",
+                "region": "CA",
+                "postalCode": "94103",
+                "countryCode": "US"
+            }
+        }
+    ]
+}'
+```
+
+```js Javascript
+const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/applications/business', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'api-key': '<api-key>'
+  },
+  body: JSON.stringify({
+    name: "Acme Corporation",
+    address: {
+      line1: "456 Business Ave",
+      city: "San Francisco",
+      region: "CA",
+      postalCode: "94103",
+      countryCode: "US"
+    },
+    entity: {
+      name: "Acme Corporation LLC",
+      type: "LLC",
+      description: "Technology solutions provider",
+      industry: "Technology",
+      registrationNumber: "12345678",
+      taxId: "98-7654321",
+      website: "https://acme.com",
+      expectedSpend: "50000"
+    },
+    initialUser: {
+      firstName: "Jane",
+      lastName: "Smith",
+      birthDate: "1985-05-20",
+      nationalId: "987654321",
+      countryOfIssue: "US",
+      email: "jane.smith@acme.com",
+      phoneCountryCode: "1",
+      phoneNumber: "4155551234",
+      address: {
+        line1: "789 Oak St",
+        city: "San Francisco",
+        region: "CA",
+        postalCode: "94103",
+        countryCode: "US"
+      },
+      ipAddress: "192.168.1.100",
+      isTermsOfServiceAccepted: true
+    },
+    representatives: [],
+    ultimateBeneficialOwners: []
+  })
+});
+
+const data = await response.json();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "success": true,
+  "companyId": "8f3e1a2b-4c5d-6e7f-8a9b-0c1d2e3f4a5b",
+  "status": "pending"
+}
+```
+
+</ResponseExample>
+

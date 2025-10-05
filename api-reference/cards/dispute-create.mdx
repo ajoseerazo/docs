@@ -1,0 +1,117 @@
+---
+title: "Create Dispute"
+api: "POST https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/transactions/:transactionId/disputes"
+description: "This endpoint creates a dispute for a specific transaction"
+---
+
+### Params
+
+<ParamField path="transactionId" type="string" required>
+  The unique transaction identifier to dispute
+</ParamField>
+
+### Body
+
+<ParamField body="textEvidence" type="string" required>
+  Textual evidence describing the reason for the dispute
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the call was successful
+</ResponseField>
+
+<ResponseField name="disputeId" type="string">
+  The unique dispute identifier
+</ResponseField>
+
+<ResponseField name="transactionId" type="string">
+  The transaction ID being disputed
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Dispute status: `submitted`, `under_review`, `won`, `lost`, or `needs_evidence`
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  ISO 8601 timestamp when the dispute was created
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/transactions/txn_1a2b3c4d5e6f7g8h/disputes' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data-raw '{
+    "textEvidence": "I did not authorize this transaction. The charge appeared on my card without my knowledge. I believe this is fraudulent activity."
+}'
+```
+
+```js Javascript
+const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/transactions/txn_1a2b3c4d5e6f7g8h/disputes', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'api-key': '<api-key>'
+  },
+  body: JSON.stringify({
+    textEvidence: "I did not authorize this transaction. The charge appeared on my card without my knowledge. I believe this is fraudulent activity."
+  })
+});
+
+const data = await response.json();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 201
+{
+  "success": true,
+  "disputeId": "dsp_9z8y7x6w5v4u3t2s",
+  "transactionId": "txn_1a2b3c4d5e6f7g8h",
+  "status": "submitted",
+  "createdAt": "2024-01-17T10:30:00Z"
+}
+```
+
+</ResponseExample>
+
+### Error Responses
+
+<ResponseExample>
+
+```json 401
+{
+  "success": false,
+  "error": "Unauthorized. Please check your authentication credentials."
+}
+```
+
+```json 404
+{
+  "success": false,
+  "error": "Transaction not found."
+}
+```
+
+```json 400
+{
+  "success": false,
+  "error": "This transaction has already been disputed."
+}
+```
+
+</ResponseExample>
+
+### Common Dispute Reasons
+
+- **Fraudulent transaction**: Unauthorized charge
+- **Product not received**: Merchant failed to deliver goods or services
+- **Product not as described**: Item significantly different from description
+- **Duplicate charge**: Same transaction charged multiple times
+- **Subscription cancelled**: Charged after subscription cancellation
+

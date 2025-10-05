@@ -1,0 +1,166 @@
+---
+title: "List Transactions"
+api: "GET https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/transactions"
+description: "This endpoint retrieves a paginated list of card transactions with optional filters"
+---
+
+### Query Parameters
+
+<ParamField query="companyId" type="string">
+  Filter transactions by company ID
+</ParamField>
+
+<ParamField query="userId" type="string">
+  Filter transactions by user ID
+</ParamField>
+
+<ParamField query="cardId" type="string">
+  Filter transactions by card ID
+</ParamField>
+
+<ParamField query="cursor" type="string">
+  Pagination cursor for retrieving the next page of results
+</ParamField>
+
+<ParamField query="limit" type="number">
+  Number of transactions to return per page (1-100, default: 20)
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the call was successful
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of transaction objects
+  
+  <Expandable title="Transaction object">
+    <ResponseField name="transactionId" type="string">
+      Unique transaction identifier
+    </ResponseField>
+    <ResponseField name="cardId" type="string">
+      The card ID used for the transaction
+    </ResponseField>
+    <ResponseField name="userId" type="string">
+      The user ID of the cardholder
+    </ResponseField>
+    <ResponseField name="amount" type="number">
+      Transaction amount
+    </ResponseField>
+    <ResponseField name="currency" type="string">
+      Transaction currency code (e.g., "USD")
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Transaction status: `pending`, `approved`, `declined`, or `reversed`
+    </ResponseField>
+    <ResponseField name="merchantName" type="string">
+      Name of the merchant
+    </ResponseField>
+    <ResponseField name="merchantCategory" type="string">
+      Merchant category code (MCC)
+    </ResponseField>
+    <ResponseField name="type" type="string">
+      Transaction type: `purchase`, `refund`, `withdrawal`, etc.
+    </ResponseField>
+    <ResponseField name="createdAt" type="string">
+      ISO 8601 timestamp when the transaction was created
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="pagination" type="object">
+  Pagination information
+  
+  <Expandable title="Pagination object">
+    <ResponseField name="nextCursor" type="string">
+      Cursor for the next page (null if no more pages)
+    </ResponseField>
+    <ResponseField name="hasMore" type="boolean">
+      Whether there are more results available
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request GET 'https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/transactions?cardId=7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d&limit=20' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>'
+```
+
+```js Javascript
+const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/transactions?cardId=7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d&limit=20', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+    'api-key': '<api-key>'
+  }
+});
+
+const data = await response.json();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "success": true,
+  "data": [
+    {
+      "transactionId": "txn_1a2b3c4d5e6f7g8h",
+      "cardId": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
+      "userId": "3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+      "amount": 49.99,
+      "currency": "USD",
+      "status": "approved",
+      "merchantName": "Amazon.com",
+      "merchantCategory": "5942",
+      "type": "purchase",
+      "createdAt": "2024-01-15T14:23:45Z"
+    },
+    {
+      "transactionId": "txn_9h8g7f6e5d4c3b2a",
+      "cardId": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
+      "userId": "3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+      "amount": 125.50,
+      "currency": "USD",
+      "status": "approved",
+      "merchantName": "Whole Foods",
+      "merchantCategory": "5411",
+      "type": "purchase",
+      "createdAt": "2024-01-14T09:15:22Z"
+    }
+  ],
+  "pagination": {
+    "nextCursor": "eyJpZCI6MTIzNDU2fQ==",
+    "hasMore": true
+  }
+}
+```
+
+</ResponseExample>
+
+### Error Responses
+
+<ResponseExample>
+
+```json 401
+{
+  "success": false,
+  "error": "Unauthorized. Please check your authentication credentials."
+}
+```
+
+```json 400
+{
+  "success": false,
+  "error": "Invalid query parameters."
+}
+```
+
+</ResponseExample>
+

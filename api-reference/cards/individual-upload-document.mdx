@@ -1,0 +1,104 @@
+---
+title: "Upload Individual Document"
+api: "POST https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/applications/individual/:userId/documents"
+description: "This endpoint allows uploading identity and verification documents for an individual application"
+---
+
+### Params
+
+<ParamField path="userId" type="string" required>
+  The user ID for the application
+</ParamField>
+
+### Body
+
+<ParamField body="document" type="file" required>
+  The document file to upload (multipart/form-data)
+</ParamField>
+
+<ParamField body="documentName" type="string" required>
+  The name of the document
+</ParamField>
+
+<ParamField body="documentType" type="string" required>
+  Type of document being uploaded (e.g., "drivers_license", "passport", "national_id", "proof_of_address")
+</ParamField>
+
+<ParamField body="side" type="string">
+  For ID documents, specify "front" or "back"
+</ParamField>
+
+### Response
+
+<ResponseField name="message" type="string">
+  Confirmation message
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/applications/individual/3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1/documents' \
+--header 'api-key: <api-key>' \
+--form 'document=@"/path/to/document.jpg"' \
+--form 'documentName="Drivers License"' \
+--form 'documentType="drivers_license"' \
+--form 'side="front"'
+```
+
+```js Javascript
+const formData = new FormData();
+formData.append('document', fileInput.files[0]);
+formData.append('documentName', 'Drivers License');
+formData.append('documentType', 'drivers_license');
+formData.append('side', 'front');
+
+const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/applications/individual/3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1/documents', {
+  method: 'POST',
+  headers: {
+    'api-key': '<api-key>'
+  },
+  body: formData
+});
+
+const data = await response.json();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 204
+{
+  "message": "Document uploaded successfully"
+}
+```
+
+</ResponseExample>
+
+### Error Responses
+
+<ResponseExample>
+
+```json 401
+{
+  "success": false,
+  "error": "Unauthorized. Please check your authentication credentials."
+}
+```
+
+```json 400
+{
+  "success": false,
+  "error": "Document file is required"
+}
+```
+
+```json 404
+{
+  "success": false,
+  "error": "Application not found."
+}
+```
+
+</ResponseExample>
+

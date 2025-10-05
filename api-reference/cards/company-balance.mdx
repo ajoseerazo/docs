@@ -1,0 +1,95 @@
+---
+title: "Get Company Balance"
+api: "GET https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/companies/:companyId/balance"
+description: "This endpoint retrieves the current balance for a company's account"
+---
+
+### Params
+
+<ParamField path="companyId" type="string" required>
+  The unique company identifier
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the call was successful
+</ResponseField>
+
+<ResponseField name="companyId" type="string">
+  The unique company identifier
+</ResponseField>
+
+<ResponseField name="balance" type="number">
+  Current available balance
+</ResponseField>
+
+<ResponseField name="currency" type="string">
+  Currency code (e.g., "USD")
+</ResponseField>
+
+<ResponseField name="pendingBalance" type="number">
+  Balance pending from unsettled transactions
+</ResponseField>
+
+<ResponseField name="updatedAt" type="string">
+  ISO 8601 timestamp when the balance was last updated
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request GET 'https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/companies/8f3e1a2b-4c5d-6e7f-8a9b-0c1d2e3f4a5b/balance' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>'
+```
+
+```js Javascript
+const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/companies/8f3e1a2b-4c5d-6e7f-8a9b-0c1d2e3f4a5b/balance', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+    'api-key': '<api-key>'
+  }
+});
+
+const data = await response.json();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "success": true,
+  "companyId": "8f3e1a2b-4c5d-6e7f-8a9b-0c1d2e3f4a5b",
+  "balance": 50000.00,
+  "currency": "USD",
+  "pendingBalance": 1250.50,
+  "updatedAt": "2024-01-17T15:45:00Z"
+}
+```
+
+</ResponseExample>
+
+### Error Responses
+
+<ResponseExample>
+
+```json 401
+{
+  "success": false,
+  "error": "Unauthorized. Please check your authentication credentials."
+}
+```
+
+```json 404
+{
+  "success": false,
+  "error": "Company not found."
+}
+```
+
+</ResponseExample>
+

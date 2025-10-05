@@ -1,0 +1,87 @@
+---
+title: "Initiate Individual Application"
+api: "POST https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/applications/individual/initiate"
+description: "This endpoint initiates an individual card application process for a new customer"
+---
+
+### Body
+
+<ParamField body="email" type="string" required>
+  The email address of the individual applicant
+</ParamField>
+
+<ParamField body="walletAddress" type="string" required>
+  The blockchain wallet address associated with the applicant
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the call was successful
+</ResponseField>
+
+<ResponseField name="userId" type="string">
+  The unique user identifier for the initiated application
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/applications/individual/initiate' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data-raw '{
+    "email": "user@example.com",
+    "walletAddress": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+}'
+```
+
+```js Javascript
+const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/applications/individual/initiate', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'api-key': '<api-key>'
+  },
+  body: JSON.stringify({
+    email: "user@example.com",
+    walletAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
+  })
+});
+
+const data = await response.json();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "success": true,
+  "userId": "3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1"
+}
+```
+
+</ResponseExample>
+
+### Error Responses
+
+<ResponseExample>
+
+```json 401
+{
+  "success": false,
+  "error": "Unauthorized. Please check your authentication credentials."
+}
+```
+
+```json 400
+{
+  "success": false,
+  "error": "Invalid email or wallet address provided."
+}
+```
+
+</ResponseExample>
+

@@ -57,6 +57,65 @@
       ]
     },
     {
+      "group": "Cards",
+      "pages": [
+        {
+          "group": "Individual Applications",
+          "pages": [
+            "api-reference/cards/individual-initiate",
+            "api-reference/cards/individual-create",
+            "api-reference/cards/individual-status",
+            "api-reference/cards/individual-upload-document"
+          ]
+        },
+        {
+          "group": "Business Applications",
+          "pages": [
+            "api-reference/cards/business-create",
+            "api-reference/cards/business-status"
+          ]
+        },
+        {
+          "group": "Card Management",
+          "pages": [
+            "api-reference/cards/card-create",
+            "api-reference/cards/card-get",
+            "api-reference/cards/card-update",
+            "api-reference/cards/card-secrets",
+            "api-reference/cards/card-lock-unlock"
+          ]
+        },
+        {
+          "group": "Transactions",
+          "pages": [
+            "api-reference/cards/transactions-list",
+            "api-reference/cards/transaction-get"
+          ]
+        },
+        {
+          "group": "Disputes",
+          "pages": [
+            "api-reference/cards/dispute-create",
+            "api-reference/cards/dispute-upload-evidence"
+          ]
+        },
+        {
+          "group": "User Management",
+          "pages": [
+            "api-reference/cards/user-get",
+            "api-reference/cards/user-balance"
+          ]
+        },
+        {
+          "group": "Company Management",
+          "pages": [
+            "api-reference/cards/company-get",
+            "api-reference/cards/company-balance"
+          ]
+        }
+      ]
+    },
+    {
       "group": "Webhooks",
       "pages": ["api-reference/webhooks"]
     }

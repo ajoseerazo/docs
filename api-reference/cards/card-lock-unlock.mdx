@@ -1,0 +1,110 @@
+---
+title: "Lock/Unlock Card"
+api: "PATCH https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/cards/:cardId/status"
+description: "This endpoint allows you to lock or unlock a card for security purposes"
+---
+
+### Params
+
+<ParamField path="cardId" type="string" required>
+  The unique card identifier
+</ParamField>
+
+### Body
+
+<ParamField body="status" type="string" required>
+  Desired card status: `active` (unlock) or `locked`
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the call was successful
+</ResponseField>
+
+<ResponseField name="cardId" type="string">
+  The unique card identifier
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Updated card status
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL - Lock Card
+curl --location --request PATCH 'https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/cards/7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d/status' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data-raw '{
+    "status": "locked"
+}'
+```
+
+```bash cURL - Unlock Card
+curl --location --request PATCH 'https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/cards/7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d/status' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data-raw '{
+    "status": "active"
+}'
+```
+
+```js Javascript
+const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/cards/7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d/status', {
+  method: 'PATCH',
+  headers: {
+    'Content-Type': 'application/json',
+    'api-key': '<api-key>'
+  },
+  body: JSON.stringify({
+    status: "locked" // or "active" to unlock
+  })
+});
+
+const data = await response.json();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "success": true,
+  "cardId": "7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d",
+  "status": "locked"
+}
+```
+
+</ResponseExample>
+
+### Error Responses
+
+<ResponseExample>
+
+```json 401
+{
+  "success": false,
+  "error": "Unauthorized. Please check your authentication credentials."
+}
+```
+
+```json 404
+{
+  "success": false,
+  "error": "Card not found."
+}
+```
+
+</ResponseExample>
+
+### Use Cases
+
+**Locking a card** is useful when:
+- The cardholder reports the card as lost or stolen
+- Suspicious activity is detected
+- The cardholder wants to temporarily disable the card
+
+**Unlocking a card** restores normal functionality after it has been locked.
+

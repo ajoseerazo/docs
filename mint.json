@@ -62,7 +62,6 @@
         {
           "group": "Individual Applications",
           "pages": [
-            "api-reference/cards/individual-initiate",
             "api-reference/cards/individual-create",
             "api-reference/cards/individual-status",
             "api-reference/cards/individual-upload-document"

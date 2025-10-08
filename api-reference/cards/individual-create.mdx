@@ -46,10 +46,6 @@ description: "This endpoint creates a complete individual card application with 
   IP address of the applicant
 </ParamField>
 
-<ParamField body="iovationBlackbox" type="string" required>
-  Iovation fraud prevention blackbox data
-</ParamField>
-
 <ParamField body="occupation" type="string" required>
   Occupation of the applicant
 </ParamField>
@@ -133,7 +129,6 @@ curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/api/v
     "phoneNumber": "5551234567",
     "walletAddress": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
     "ipAddress": "192.168.1.1",
-    "iovationBlackbox": "blackbox_data_here",
     "occupation": "Software Engineer",
     "annualSalary": 100000,
     "accountPurpose": "Personal expenses and investments",
@@ -169,7 +164,6 @@ const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/api/v1/
     phoneNumber: "5551234567",
     walletAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
     ipAddress: "192.168.1.1",
-    iovationBlackbox: "blackbox_data_here",
     occupation: "Software Engineer",
     annualSalary: 100000,
     accountPurpose: "Personal expenses and investments",

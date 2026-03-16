@@ -3,18 +3,6 @@
   "name": "Meru",
   "favicon": "/favicon.png",
   "theme": "mint",
-  "colors": {
-    "primary": "#191c1f",
-    "light": "#60a5fa",
-    "dark": "#0D001D",
-    "background": {
-      "dark": "#090014"
-    },
-    "anchors": {
-      "from": "#FF7F57",
-      "to": "#9563FF"
-    }
-  },
   "topbarLinks": [
     {
       "name": "Support",

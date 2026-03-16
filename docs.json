@@ -1,116 +1,127 @@
 {
-  "$schema": "https://mintlify.com/schema.json",
+  "$schema": "https://mintlify.com/docs.json",
   "name": "Meru",
   "favicon": "/favicon.png",
   "theme": "mint",
   "colors": {
-    "primary": "#191c1f"
+    "primary": "#191c1f",
+    "light": "#60a5fa",
+    "dark": "#0D001D",
+    "background": {
+      "dark": "#090014"
+    },
+    "anchors": {
+      "from": "#FF7F57",
+      "to": "#9563FF"
+    }
   },
-  "topbarLinks": [
-    {
-      "name": "Support",
-      "url": "mailto:a@getmeru.com"
-    }
-  ],
-  "tabs": [
-    {
-      "name": "API Reference",
-      "url": "api-reference"
-    }
-  ],
-  "navigation": [
-    {
-      "group": "API Documentation",
-      "pages": ["api-reference/authentication"]
-    },
-    {
-      "group": "Balances",
-      "pages": [
-        "api-reference/balances/balances"
-      ]
-    },
-    {
-      "group": "Quotes",
-      "pages": ["api-reference/quotes/quotes", "api-reference/quotes/get-quote"]
-    },
-    {
-      "group": "Payouts",
-      "pages": [
-        "api-reference/payouts/create",
-        "api-reference/payouts/preview-qr-code",
-        "api-reference/payouts/get"
-      ]
-    },
-    {
-      "group": "Payins",
-      "pages": [
-        "api-reference/payins/create-qr-payment",
-        "api-reference/payins/get-payment"
-      ]
-    },
-    {
-      "group": "Cards",
-      "pages": [
-        {
-          "group": "Individual Applications",
-          "pages": [
-            "api-reference/cards/individual-create",
-            "api-reference/cards/individual-status",
-            "api-reference/cards/individual-upload-document"
-          ]
-        },
-        {
-          "group": "Business Applications",
-          "pages": [
-            "api-reference/cards/business-create",
-            "api-reference/cards/business-status"
-          ]
-        },
-        {
-          "group": "Card Management",
-          "pages": [
-            "api-reference/cards/card-create",
-            "api-reference/cards/card-get",
-            "api-reference/cards/card-update",
-            "api-reference/cards/card-secrets",
-            "api-reference/cards/card-lock-unlock"
-          ]
-        },
-        {
-          "group": "Transactions",
-          "pages": [
-            "api-reference/cards/transactions-list",
-            "api-reference/cards/transaction-get"
-          ]
-        },
-        {
-          "group": "Disputes",
-          "pages": [
-            "api-reference/cards/dispute-create",
-            "api-reference/cards/dispute-upload-evidence"
-          ]
-        },
-        {
-          "group": "User Management",
-          "pages": [
-            "api-reference/cards/user-get",
-            "api-reference/cards/user-balance"
-          ]
-        },
-        {
-          "group": "Company Management",
-          "pages": [
-            "api-reference/cards/company-get",
-            "api-reference/cards/company-balance"
-          ]
-        }
-      ]
-    },
-    {
-      "group": "Webhooks",
-      "pages": ["api-reference/webhooks"]
-    }
-  ],
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:a@getmeru.com"
+      }
+    ]
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "API Reference",
+        "href": "api-reference",
+        "groups": [
+          {
+            "group": "API Documentation",
+            "pages": ["api-reference/authentication"]
+          },
+          {
+            "group": "Balances",
+            "pages": ["api-reference/balances/balances"]
+          },
+          {
+            "group": "Quotes",
+            "pages": ["api-reference/quotes/quotes", "api-reference/quotes/get-quote"]
+          },
+          {
+            "group": "Payouts",
+            "pages": [
+              "api-reference/payouts/create",
+              "api-reference/payouts/preview-qr-code",
+              "api-reference/payouts/get"
+            ]
+          },
+          {
+            "group": "Payins",
+            "pages": [
+              "api-reference/payins/create-qr-payment",
+              "api-reference/payins/get-payment"
+            ]
+          },
+          {
+            "group": "Cards",
+            "pages": [
+              {
+                "group": "Individual Applications",
+                "pages": [
+                  "api-reference/cards/individual-create",
+                  "api-reference/cards/individual-status",
+                  "api-reference/cards/individual-upload-document"
+                ]
+              },
+              {
+                "group": "Business Applications",
+                "pages": [
+                  "api-reference/cards/business-create",
+                  "api-reference/cards/business-status"
+                ]
+              },
+              {
+                "group": "Card Management",
+                "pages": [
+                  "api-reference/cards/card-create",
+                  "api-reference/cards/card-get",
+                  "api-reference/cards/card-update",
+                  "api-reference/cards/card-secrets",
+                  "api-reference/cards/card-lock-unlock"
+                ]
+              },
+              {
+                "group": "Transactions",
+                "pages": [
+                  "api-reference/cards/transactions-list",
+                  "api-reference/cards/transaction-get"
+                ]
+              },
+              {
+                "group": "Disputes",
+                "pages": [
+                  "api-reference/cards/dispute-create",
+                  "api-reference/cards/dispute-upload-evidence"
+                ]
+              },
+              {
+                "group": "User Management",
+                "pages": [
+                  "api-reference/cards/user-get",
+                  "api-reference/cards/user-balance"
+                ]
+              },
+              {
+                "group": "Company Management",
+                "pages": [
+                  "api-reference/cards/company-get",
+                  "api-reference/cards/company-balance"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": ["api-reference/webhooks"]
+          }
+        ]
+      }
+    ]
+  },
   "api": {
     "auth": {
       "method": "key",

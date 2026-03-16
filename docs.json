@@ -3,6 +3,9 @@
   "name": "Meru",
   "favicon": "/favicon.png",
   "theme": "mint",
+  "colors": {
+    "primary": "#191c1f"
+  },
   "topbarLinks": [
     {
       "name": "Support",

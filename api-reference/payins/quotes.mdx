@@ -1,0 +1,43 @@
+---
+title: "Get Quote"
+api: "POST https://stablecoin-api.sandbox.getmeru.com/v1/payins/quotes"
+description: "Returns a quote for a given rail and currency pair."
+---
+
+### Body
+
+<ParamField body="paymentRail" type="string" required>
+  <code>qr_code</code> or <code>crypto</code>.
+</ParamField>
+
+<ParamField body="amount" type="number" required>
+  Amount to quote.
+</ParamField>
+
+<ParamField body="fromCurrency" type="string" required>
+  Source currency code.
+</ParamField>
+
+<ParamField body="toCurrency" type="string" required>
+  Destination currency code.
+</ParamField>
+
+### Response
+
+<ResponseExample>
+
+```json 200
+{
+  "paymentRail": "crypto",
+  "fromCurrency": "usdc",
+  "toCurrency": "bob",
+  "fromAmount": 100,
+  "toAmount": 939.51,
+  "rate": 9.4,
+  "quotedAt": "2026-04-17T12:46:14.310Z",
+  "expiresAt": "2026-04-17T12:46:44.310Z"
+}
+```
+
+</ResponseExample>
+

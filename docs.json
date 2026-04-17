@@ -46,7 +46,14 @@
             "group": "Payins",
             "pages": [
               "api-reference/payins/create-qr-payment",
-              "api-reference/payins/get-payment"
+              "api-reference/payins/get-payment",
+              "api-reference/payins/create",
+              "api-reference/payins/list",
+              "api-reference/payins/get-by-id",
+              "api-reference/payins/get-by-external-id",
+              "api-reference/payins/quotes",
+              "api-reference/payins/cancel",
+              "api-reference/payins/revert"
             ]
           },
           {

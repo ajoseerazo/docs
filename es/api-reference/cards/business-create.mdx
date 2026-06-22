@@ -1,0 +1,276 @@
+---
+title: "Crear solicitud empresarial"
+api: "POST https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/applications/business"
+description: "Este endpoint crea una solicitud de tarjeta empresarial con los datos de la empresa y de su representante"
+---
+
+### Cuerpo
+
+<ParamField body="name" type="string" required>
+  Nombre legal de la empresa
+</ParamField>
+
+<ParamField body="address" type="object" required>
+  Dirección de la empresa
+
+  <Expandable title="Objeto address">
+    <ParamField body="line1" type="string" required>
+      Dirección línea 1 (máximo 100 caracteres)
+    </ParamField>
+    <ParamField body="line2" type="string">
+      Dirección línea 2 (máximo 100 caracteres)
+    </ParamField>
+    <ParamField body="city" type="string" required>
+      Ciudad (máximo 50 caracteres)
+    </ParamField>
+    <ParamField body="region" type="string" required>
+      Estado o región (máximo 50 caracteres)
+    </ParamField>
+    <ParamField body="postalCode" type="string" required>
+      Código postal (1-9 caracteres)
+    </ParamField>
+    <ParamField body="countryCode" type="string" required>
+      Código de país de dos letras (por ejemplo, "US")
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="entity" type="object" required>
+  Datos de la entidad empresarial
+
+  <Expandable title="Objeto entity">
+    <ParamField body="name" type="string" required>
+      Nombre legal de la entidad
+    </ParamField>
+    <ParamField body="type" type="string">
+      Tipo de entidad (por ejemplo, "LLC", "Corporation")
+    </ParamField>
+    <ParamField body="description" type="string" required>
+      Descripción del negocio
+    </ParamField>
+    <ParamField body="industry" type="string" required>
+      Sector / industria
+    </ParamField>
+    <ParamField body="registrationNumber" type="string" required>
+      Número de registro de la empresa
+    </ParamField>
+    <ParamField body="taxId" type="string" required>
+      Número de identificación tributaria
+    </ParamField>
+    <ParamField body="website" type="string" required>
+      URL del sitio web de la empresa
+    </ParamField>
+    <ParamField body="expectedSpend" type="string">
+      Gasto mensual esperado
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="initialUser" type="object" required>
+  Contacto principal y administrador
+
+  <Expandable title="Objeto initialUser">
+    <ParamField body="firstName" type="string" required>
+      Nombre (máximo 50 caracteres)
+    </ParamField>
+    <ParamField body="lastName" type="string" required>
+      Apellido (máximo 50 caracteres)
+    </ParamField>
+    <ParamField body="birthDate" type="string" required>
+      Fecha de nacimiento (formato YYYY-MM-DD)
+    </ParamField>
+    <ParamField body="nationalId" type="string" required>
+      Número de identificación nacional
+    </ParamField>
+    <ParamField body="countryOfIssue" type="string" required>
+      Código de país de dos letras
+    </ParamField>
+    <ParamField body="email" type="string" required>
+      Correo electrónico
+    </ParamField>
+    <ParamField body="phoneCountryCode" type="string">
+      Código de país del teléfono (1-3 caracteres)
+    </ParamField>
+    <ParamField body="phoneNumber" type="string">
+      Número de teléfono (1-15 caracteres)
+    </ParamField>
+    <ParamField body="address" type="object" required>
+      Dirección personal (misma estructura que la dirección de la empresa)
+    </ParamField>
+    <ParamField body="walletAddress" type="string">
+      Dirección de wallet blockchain
+    </ParamField>
+    <ParamField body="ipAddress" type="string" required>
+      Dirección IP
+    </ParamField>
+    <ParamField body="isTermsOfServiceAccepted" type="boolean" required>
+      Debe ser true
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="representatives" type="array" required>
+  Arreglo de representantes de la empresa (misma estructura que initialUser, pero sin IP ni aceptación de términos requeridos)
+</ParamField>
+
+<ParamField body="ultimateBeneficialOwners" type="array" required>
+  Arreglo de beneficiarios finales (UBOs): personas que poseen el 25% o más de la empresa
+</ParamField>
+
+<ParamField body="chainId" type="string">
+  ID de cadena (blockchain)
+</ParamField>
+
+<ParamField body="contractAddress" type="string">
+  Dirección del smart contract
+</ParamField>
+
+<ParamField body="sourceKey" type="string">
+  Clave de origen para trazabilidad
+</ParamField>
+
+### Respuesta
+
+<ResponseField name="success" type="boolean">
+  Indica si la operación fue exitosa
+</ResponseField>
+
+<ResponseField name="companyId" type="string">
+  El identificador único de la empresa
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Estado de la solicitud
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/applications/business' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data-raw '{
+    "name": "Acme Corporation",
+    "address": {
+        "line1": "456 Business Ave",
+        "city": "San Francisco",
+        "region": "CA",
+        "postalCode": "94103",
+        "countryCode": "US"
+    },
+    "entity": {
+        "name": "Acme Corporation LLC",
+        "type": "LLC",
+        "description": "Technology solutions provider",
+        "industry": "Technology",
+        "registrationNumber": "12345678",
+        "taxId": "98-7654321",
+        "website": "https://acme.com",
+        "expectedSpend": "50000"
+    },
+    "initialUser": {
+        "firstName": "Jane",
+        "lastName": "Smith",
+        "birthDate": "1985-05-20",
+        "nationalId": "987654321",
+        "countryOfIssue": "US",
+        "email": "jane.smith@acme.com",
+        "phoneCountryCode": "1",
+        "phoneNumber": "4155551234",
+        "address": {
+            "line1": "789 Oak St",
+            "city": "San Francisco",
+            "region": "CA",
+            "postalCode": "94103",
+            "countryCode": "US"
+        },
+        "ipAddress": "192.168.1.100",
+        "isTermsOfServiceAccepted": true
+    },
+    "representatives": [],
+    "ultimateBeneficialOwners": [
+        {
+            "firstName": "Jane",
+            "lastName": "Smith",
+            "birthDate": "1985-05-20",
+            "nationalId": "987654321",
+            "countryOfIssue": "US",
+            "email": "jane.smith@acme.com",
+            "address": {
+                "line1": "789 Oak St",
+                "city": "San Francisco",
+                "region": "CA",
+                "postalCode": "94103",
+                "countryCode": "US"
+            }
+        }
+    ]
+}'
+```
+
+```js Javascript
+const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/applications/business', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'api-key': '<api-key>'
+  },
+  body: JSON.stringify({
+    name: "Acme Corporation",
+    address: {
+      line1: "456 Business Ave",
+      city: "San Francisco",
+      region: "CA",
+      postalCode: "94103",
+      countryCode: "US"
+    },
+    entity: {
+      name: "Acme Corporation LLC",
+      type: "LLC",
+      description: "Technology solutions provider",
+      industry: "Technology",
+      registrationNumber: "12345678",
+      taxId: "98-7654321",
+      website: "https://acme.com",
+      expectedSpend: "50000"
+    },
+    initialUser: {
+      firstName: "Jane",
+      lastName: "Smith",
+      birthDate: "1985-05-20",
+      nationalId: "987654321",
+      countryOfIssue: "US",
+      email: "jane.smith@acme.com",
+      phoneCountryCode: "1",
+      phoneNumber: "4155551234",
+      address: {
+        line1: "789 Oak St",
+        city: "San Francisco",
+        region: "CA",
+        postalCode: "94103",
+        countryCode: "US"
+      },
+      ipAddress: "192.168.1.100",
+      isTermsOfServiceAccepted: true
+    },
+    representatives: [],
+    ultimateBeneficialOwners: []
+  })
+});
+
+const data = await response.json();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "success": true,
+  "companyId": "8f3e1a2b-4c5d-6e7f-8a9b-0c1d2e3f4a5b",
+  "status": "pending"
+}
+```
+
+</ResponseExample>

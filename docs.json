@@ -16,107 +16,239 @@
       }
     ]
   },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/somosmeru",
+      "linkedin": "https://www.linkedin.com/company/meru-r3mit-solutions-inc",
+      "instagram": "https://www.instagram.com/meru.app/"
+    }
+  },
+  "contextual": {
+    "options": ["copy", "view", "chatgpt", "claude", "perplexity"]
+  },
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/api-reference/authentication"
+    }
+  ],
   "navigation": {
-    "tabs": [
+    "languages": [
       {
-        "tab": "API Reference",
-        "href": "api-reference",
-        "groups": [
+        "language": "en",
+        "default": true,
+        "tabs": [
           {
-            "group": "API Documentation",
-            "pages": ["api-reference/authentication"]
-          },
-          {
-            "group": "Balances",
-            "pages": ["api-reference/balances/balances"]
-          },
-          {
-            "group": "Quotes",
-            "pages": ["api-reference/quotes/quotes", "api-reference/quotes/get-quote"]
-          },
-          {
-            "group": "Payouts",
-            "pages": [
-              "api-reference/payouts/create",
-              "api-reference/payouts/preview-qr-code",
-              "api-reference/payouts/get"
-            ]
-          },
-          {
-            "group": "Payins",
-            "pages": [
-              "api-reference/payins/create-qr-payment",
-              "api-reference/payins/get-payment",
-              "api-reference/payins/create",
-              "api-reference/payins/list",
-              "api-reference/payins/get-by-id",
-              "api-reference/payins/get-by-external-id",
-              "api-reference/payins/quotes",
-              "api-reference/payins/cancel",
-              "api-reference/payins/revert"
-            ]
-          },
-          {
-            "group": "Cards",
-            "pages": [
+            "tab": "API Reference",
+            "href": "api-reference",
+            "groups": [
               {
-                "group": "Individual Applications",
+                "group": "API Documentation",
+                "pages": ["api-reference/authentication"]
+              },
+              {
+                "group": "Balances",
+                "pages": ["api-reference/balances/balances"]
+              },
+              {
+                "group": "Quotes",
+                "pages": ["api-reference/quotes/quotes", "api-reference/quotes/get-quote"]
+              },
+              {
+                "group": "Payouts",
                 "pages": [
-                  "api-reference/cards/individual-create",
-                  "api-reference/cards/individual-status",
-                  "api-reference/cards/individual-upload-document"
+                  "api-reference/payouts/create",
+                  "api-reference/payouts/preview-qr-code",
+                  "api-reference/payouts/get"
                 ]
               },
               {
-                "group": "Business Applications",
+                "group": "Payins",
                 "pages": [
-                  "api-reference/cards/business-create",
-                  "api-reference/cards/business-status"
+                  "api-reference/payins/create-qr-payment",
+                  "api-reference/payins/get-payment",
+                  "api-reference/payins/create",
+                  "api-reference/payins/list",
+                  "api-reference/payins/get-by-id",
+                  "api-reference/payins/get-by-external-id",
+                  "api-reference/payins/quotes",
+                  "api-reference/payins/cancel",
+                  "api-reference/payins/revert"
                 ]
               },
               {
-                "group": "Card Management",
+                "group": "Cards",
                 "pages": [
-                  "api-reference/cards/card-create",
-                  "api-reference/cards/card-get",
-                  "api-reference/cards/card-update",
-                  "api-reference/cards/card-secrets",
-                  "api-reference/cards/card-lock-unlock"
+                  {
+                    "group": "Individual Applications",
+                    "pages": [
+                      "api-reference/cards/individual-create",
+                      "api-reference/cards/individual-status",
+                      "api-reference/cards/individual-upload-document"
+                    ]
+                  },
+                  {
+                    "group": "Business Applications",
+                    "pages": [
+                      "api-reference/cards/business-create",
+                      "api-reference/cards/business-status"
+                    ]
+                  },
+                  {
+                    "group": "Card Management",
+                    "pages": [
+                      "api-reference/cards/card-create",
+                      "api-reference/cards/card-get",
+                      "api-reference/cards/card-update",
+                      "api-reference/cards/card-secrets",
+                      "api-reference/cards/card-lock-unlock"
+                    ]
+                  },
+                  {
+                    "group": "Transactions",
+                    "pages": [
+                      "api-reference/cards/transactions-list",
+                      "api-reference/cards/transaction-get"
+                    ]
+                  },
+                  {
+                    "group": "Disputes",
+                    "pages": [
+                      "api-reference/cards/dispute-create",
+                      "api-reference/cards/dispute-upload-evidence"
+                    ]
+                  },
+                  {
+                    "group": "User Management",
+                    "pages": [
+                      "api-reference/cards/user-get",
+                      "api-reference/cards/user-balance"
+                    ]
+                  },
+                  {
+                    "group": "Company Management",
+                    "pages": [
+                      "api-reference/cards/company-get",
+                      "api-reference/cards/company-balance"
+                    ]
+                  }
                 ]
               },
               {
-                "group": "Transactions",
-                "pages": [
-                  "api-reference/cards/transactions-list",
-                  "api-reference/cards/transaction-get"
-                ]
-              },
-              {
-                "group": "Disputes",
-                "pages": [
-                  "api-reference/cards/dispute-create",
-                  "api-reference/cards/dispute-upload-evidence"
-                ]
-              },
-              {
-                "group": "User Management",
-                "pages": [
-                  "api-reference/cards/user-get",
-                  "api-reference/cards/user-balance"
-                ]
-              },
-              {
-                "group": "Company Management",
-                "pages": [
-                  "api-reference/cards/company-get",
-                  "api-reference/cards/company-balance"
-                ]
+                "group": "Webhooks",
+                "pages": ["api-reference/webhooks"]
               }
             ]
-          },
+          }
+        ]
+      },
+      {
+        "language": "es",
+        "tabs": [
           {
-            "group": "Webhooks",
-            "pages": ["api-reference/webhooks"]
+            "tab": "Referencia de la API",
+            "href": "es/api-reference",
+            "groups": [
+              {
+                "group": "Documentación de la API",
+                "pages": ["es/api-reference/authentication"]
+              },
+              {
+                "group": "Saldos",
+                "pages": ["es/api-reference/balances/balances"]
+              },
+              {
+                "group": "Cotizaciones",
+                "pages": [
+                  "es/api-reference/quotes/quotes",
+                  "es/api-reference/quotes/get-quote"
+                ]
+              },
+              {
+                "group": "Payouts",
+                "pages": [
+                  "es/api-reference/payouts/create",
+                  "es/api-reference/payouts/preview-qr-code",
+                  "es/api-reference/payouts/get"
+                ]
+              },
+              {
+                "group": "Payins",
+                "pages": [
+                  "es/api-reference/payins/create-qr-payment",
+                  "es/api-reference/payins/get-payment",
+                  "es/api-reference/payins/create",
+                  "es/api-reference/payins/list",
+                  "es/api-reference/payins/get-by-id",
+                  "es/api-reference/payins/get-by-external-id",
+                  "es/api-reference/payins/quotes",
+                  "es/api-reference/payins/cancel",
+                  "es/api-reference/payins/revert"
+                ]
+              },
+              {
+                "group": "Tarjetas",
+                "pages": [
+                  {
+                    "group": "Solicitudes individuales",
+                    "pages": [
+                      "es/api-reference/cards/individual-create",
+                      "es/api-reference/cards/individual-status",
+                      "es/api-reference/cards/individual-upload-document"
+                    ]
+                  },
+                  {
+                    "group": "Solicitudes empresariales",
+                    "pages": [
+                      "es/api-reference/cards/business-create",
+                      "es/api-reference/cards/business-status"
+                    ]
+                  },
+                  {
+                    "group": "Gestión de tarjetas",
+                    "pages": [
+                      "es/api-reference/cards/card-create",
+                      "es/api-reference/cards/card-get",
+                      "es/api-reference/cards/card-update",
+                      "es/api-reference/cards/card-secrets",
+                      "es/api-reference/cards/card-lock-unlock"
+                    ]
+                  },
+                  {
+                    "group": "Transacciones",
+                    "pages": [
+                      "es/api-reference/cards/transactions-list",
+                      "es/api-reference/cards/transaction-get"
+                    ]
+                  },
+                  {
+                    "group": "Disputas",
+                    "pages": [
+                      "es/api-reference/cards/dispute-create",
+                      "es/api-reference/cards/dispute-upload-evidence"
+                    ]
+                  },
+                  {
+                    "group": "Gestión de usuarios",
+                    "pages": [
+                      "es/api-reference/cards/user-get",
+                      "es/api-reference/cards/user-balance"
+                    ]
+                  },
+                  {
+                    "group": "Gestión de empresas",
+                    "pages": [
+                      "es/api-reference/cards/company-get",
+                      "es/api-reference/cards/company-balance"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Webhooks",
+                "pages": ["es/api-reference/webhooks"]
+              }
+            ]
           }
         ]
       }

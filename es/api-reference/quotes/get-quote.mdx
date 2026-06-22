@@ -1,0 +1,104 @@
+---
+title: "Obtener cotización"
+api: "GET https://stablecoin-api.sandbox.getmeru.com/v1/quotes/:quote-id"
+description: "Este endpoint obtiene una cotización específica por su ID"
+---
+
+### Parámetros
+
+<ParamField path="quote-id" type="string" required>
+  El identificador único de la cotización a obtener
+</ParamField>
+
+### Respuesta
+
+<ResponseField name="id" type="string">
+  Identificador único de esta cotización
+</ResponseField>
+
+<ResponseField name="quote" type="number">
+  El tipo de cambio de la conversión
+</ResponseField>
+
+<ResponseField name="fixedCost" type="number">
+  Costo fijo de la transferencia, en la moneda de origen
+</ResponseField>
+
+<ResponseField name="senderAmount" type="number">
+  El monto que pagará el emisor en la moneda de origen
+</ResponseField>
+
+<ResponseField name="receiverAmount" type="number">
+  El monto que recibirá el destinatario en la moneda de destino
+</ResponseField>
+
+<ResponseField name="minAmount" type="number">
+  Monto mínimo requerido para esta conversión
+</ResponseField>
+
+<ResponseField name="validUntil" type="string">
+  La fecha y hora hasta la cual esta cotización es válida (formato ISO 8601)
+</ResponseField>
+
+<ResponseField name="isValid" type="boolean">
+  Indica si la cotización sigue siendo válida (no expiró)
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request GET 'https://stablecoin-api.sandbox.getmeru.com/v1/quotes/efaaf971-6d8b-4f36-be36-187c9f68fc06' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>'
+```
+
+```js Javascript
+const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/v1/quotes/efaaf971-6d8b-4f36-be36-187c9f68fc06', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+    'api-key': '<api-key>'
+  }
+});
+
+const data = await response.json();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "id": "efaaf971-6d8b-4f36-be36-187c9f68fc06",
+  "quote": 3737.7592,
+  "fixedCost": 4000,
+  "senderAmount": 1000,
+  "receiverAmount": 3733879.2,
+  "minAmount": 1,
+  "validUntil": "2024-12-31T23:59:59Z",
+  "isValid": true
+}
+```
+
+</ResponseExample>
+
+### Respuestas de error
+
+<ResponseExample>
+
+```json 401
+{
+  "success": false,
+  "error": "Unauthorized. Please check your authentication credentials."
+}
+```
+
+```json 404
+{
+  "success": false,
+  "error": "Quote not found."
+}
+```
+
+</ResponseExample>

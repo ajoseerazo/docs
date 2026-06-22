@@ -1,0 +1,52 @@
+---
+title: "Crear payin"
+api: "POST https://stablecoin-api.sandbox.getmeru.com/v1/payins"
+description: "Crea un nuevo payin."
+---
+
+### Cuerpo
+
+<ParamField body="externalId" type="string">
+  Id de referencia del cliente (debe ser único por empresa).
+</ParamField>
+
+<ParamField body="onBehalfOf" type="string" required>
+  Referencia del usuario/cliente.
+</ParamField>
+
+<ParamField body="amount" type="number" required>
+  Monto a pagar.
+</ParamField>
+
+<ParamField body="developerFee" type="number">
+  Monto opcional de comisión del desarrollador.
+</ParamField>
+
+<ParamField body="source" type="object">
+  Detalles de origen (opcional).
+</ParamField>
+
+<ParamField body="destination" type="object" required>
+  Detalles del destino.
+</ParamField>
+
+<ParamField body="deductFromBalance" type="boolean">
+  Indica si se descuenta del saldo.
+</ParamField>
+
+### Respuesta
+
+Devuelve un objeto payin.
+
+### Respuestas de error
+
+<ResponseExample>
+
+```json 409
+{
+  "success": false,
+  "error": "externalId was already used"
+}
+```
+
+</ResponseExample>

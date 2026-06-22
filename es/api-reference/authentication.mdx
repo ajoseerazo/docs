@@ -1,0 +1,42 @@
+---
+title: "Autenticación"
+description: "Proceso de autenticación"
+---
+
+# Autenticación por API Key
+
+Las APIs de Meru usan **autenticación por API key** para proteger el acceso a nuestros servicios. Es un método simple y seguro: incluyes tu API key única en los encabezados de la solicitud.
+
+## Entornos de la API
+
+Meru ofrece dos entornos para acceder a la API:
+
+### Entorno de producción
+```
+https://stablecoin-api.getmeru.com
+```
+
+### Entorno de sandbox
+```
+https://stablecoin-api.sandbox.getmeru.com
+```
+
+Usa el **entorno de sandbox** para pruebas y desarrollo, y el **entorno de producción** para transacciones reales.
+
+## Cómo funciona
+
+1. **Obtén tu API key** desde tu panel de Meru o la configuración de tu cuenta
+2. **Incluye la API key** en el encabezado `api-key` de tus solicitudes HTTP
+3. **El servidor valida** tu API key y otorga acceso a los recursos solicitados
+
+## Implementación
+
+### Formato del encabezado de la solicitud
+
+Incluye tu API key en el encabezado `api-key` con este formato:
+
+```js
+'api-key': '<api-key>'
+```
+
+**Nota:** Todos los endpoints de la API usan únicamente autenticación por API key.

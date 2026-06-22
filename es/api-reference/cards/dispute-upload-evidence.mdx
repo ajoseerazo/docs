@@ -1,0 +1,104 @@
+---
+title: "Subir evidencia de disputa"
+api: "POST https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/disputes/:disputeId/evidence"
+description: "Este endpoint permite subir documentación de soporte para una disputa"
+---
+
+### Parámetros
+
+<ParamField path="disputeId" type="string" required>
+  El identificador único de la disputa
+</ParamField>
+
+### Cuerpo
+
+<ParamField body="evidence" type="file" required>
+  El archivo de evidencia a subir (multipart/form-data). Formatos soportados: PDF, PNG, JPG, JPEG
+</ParamField>
+
+<ParamField body="name" type="string" required>
+  Nombre o descripción del documento de evidencia
+</ParamField>
+
+<ParamField body="type" type="string" required>
+  Tipo de evidencia (por ejemplo, "receipt", "communication", "photo", "invoice", "cancellation_proof")
+</ParamField>
+
+### Respuesta
+
+<ResponseField name="message" type="string">
+  Mensaje de confirmación
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/disputes/dsp_9z8y7x6w5v4u3t2s/evidence' \
+--header 'api-key: <api-key>' \
+--form 'evidence=@"/path/to/receipt.pdf"' \
+--form 'name="Purchase Receipt"' \
+--form 'type="receipt"'
+```
+
+```js Javascript
+const formData = new FormData();
+formData.append('evidence', fileInput.files[0]);
+formData.append('name', 'Purchase Receipt');
+formData.append('type', 'receipt');
+
+const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/disputes/dsp_9z8y7x6w5v4u3t2s/evidence', {
+  method: 'POST',
+  headers: {
+    'api-key': '<api-key>'
+  },
+  body: formData
+});
+
+const data = await response.json();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 204
+{
+  "message": "Evidence uploaded successfully"
+}
+```
+
+</ResponseExample>
+
+### Respuestas de error
+
+<ResponseExample>
+
+```json 401
+{
+  "success": false,
+  "error": "Unauthorized. Please check your authentication credentials."
+}
+```
+
+```json 400
+{
+  "success": false,
+  "error": "Evidence file is required"
+}
+```
+
+```json 404
+{
+  "success": false,
+  "error": "Dispute not found."
+}
+```
+
+</ResponseExample>
+
+### Buenas prácticas
+
+- **Subí documentos claros y legibles**: asegurate de que todo el texto se pueda leer
+- **Aportá varios tipos de evidencia**: fortalecé tu caso con distintos documentos de soporte
+- **Incluí fechas**: documentos con fechas ayudan a establecer la cronología
+- **Organizá la evidencia**: nombrá los archivos de forma descriptiva para facilitar la referencia

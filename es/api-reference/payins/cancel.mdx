@@ -1,0 +1,41 @@
+---
+title: "Cancelar payin"
+api: "POST https://stablecoin-api.sandbox.getmeru.com/v1/payins/:id/cancel"
+description: "Cancela un payin (solo permitido cuando el payin no está en un estado terminal)."
+---
+
+### Parámetros
+
+<ParamField path="id" type="string" required>
+  Id interno del payin.
+</ParamField>
+
+### Cuerpo
+
+<ParamField body="reason" type="string">
+  Motivo de la cancelación.
+</ParamField>
+
+### Respuesta
+
+<ResponseExample>
+
+```json 200
+{ "success": true, "message": "Payin cancelled successfully" }
+```
+
+</ResponseExample>
+
+### Respuestas de error
+
+<ResponseExample>
+
+```json 404
+{ "success": false, "error": "Not Found" }
+```
+
+```json 409
+{ "success": false, "error": "Conflict" }
+```
+
+</ResponseExample>

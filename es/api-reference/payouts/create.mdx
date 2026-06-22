@@ -1,0 +1,222 @@
+---
+title: "Crear payout"
+api: "POST https://stablecoin-api.sandbox.getmeru.com/v1/payouts"
+description: "Este endpoint permite iniciar un proceso de payout"
+---
+
+### Cuerpo
+
+<ParamField body="onBehalfOf" type="string" required>
+  El identificador del usuario o entidad en cuyo nombre se realiza el payout
+</ParamField>
+
+<ParamField body="amount" type="number">
+  Monto a enviar en la moneda de origen
+</ParamField>
+
+<ParamField body="source" type="object">
+  Detalles del pago de origen. Requerido si deductFromBalance es false
+
+  <Expandable title="Objeto source">
+    <ParamField body="paymentRail" type="string" required>
+      El payment rail a usar (por ejemplo, "stellar")
+    </ParamField>
+    <ParamField body="currency" type="string" required>
+      La moneda de origen (por ejemplo, "usdc")
+    </ParamField>
+    <ParamField body="address" type="string" required>
+      La dirección de la wallet de origen
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="deductFromBalance" type="boolean" required>
+  Indica si el monto se descuenta del saldo de la cuenta
+</ParamField>
+
+<ParamField body="quoteId" type="string">
+  ID de cotización opcional para el cálculo del tipo de cambio. Si se proporciona, se usará el tipo de cambio de la cotización. Si no, se calculará en el momento.
+</ParamField>
+
+<ParamField body="destination" type="object" required>
+  Detalles del pago de destino. La estructura depende del tipo de destino.
+
+  <Expandable title="Objeto destination">
+    <ParamField body="type" type="string" required>
+      El tipo de destino: "bank", "crypto_wallet" o "qr_code"
+    </ParamField>
+    <ParamField body="currency" type="string" required>
+      La moneda de destino
+    </ParamField>
+    <ParamField body="details" type="object" required>
+      Detalles específicos del destino según el tipo
+
+      <Expandable title="Detalles de destino bancario">
+        <ParamField body="country" type="string" required>
+          Código de país (por ejemplo, "CO")
+        </ParamField>
+        <ParamField body="accountType" type="string" required>
+          Tipo de cuenta bancaria (por ejemplo, "savings")
+        </ParamField>
+        <ParamField body="bankAccountNumber" type="string" required>
+          Número de cuenta bancaria
+        </ParamField>
+        <ParamField body="bankCode" type="string" required>
+          Código del banco
+        </ParamField>
+        <ParamField body="beneficiary" type="object" required>
+          Información del beneficiario
+
+          <Expandable title="Objeto beneficiary">
+            <ParamField body="email" type="string" required>
+              Correo electrónico del beneficiario
+            </ParamField>
+            <ParamField body="documentType" type="string" required>
+              Tipo de documento (por ejemplo, "CC")
+            </ParamField>
+            <ParamField body="documentNumber" type="string" required>
+              Número de documento
+            </ParamField>
+            <ParamField body="firstName" type="string" required>
+              Nombre
+            </ParamField>
+            <ParamField body="lastName" type="string" required>
+              Apellido
+            </ParamField>
+            <ParamField body="phone" type="string" required>
+              Número de teléfono
+            </ParamField>
+            <ParamField body="city" type="string" required>
+              Ciudad
+            </ParamField>
+            <ParamField body="state" type="string" required>
+              Departamento o estado
+            </ParamField>
+            <ParamField body="address" type="string" required>
+              Dirección
+            </ParamField>
+            <ParamField body="country" type="string" required>
+              Código de país
+            </ParamField>
+            <ParamField body="type" type="string" required>
+              Tipo de beneficiario
+            </ParamField>
+          </Expandable>
+        </ParamField>
+      </Expandable>
+
+      <Expandable title="Detalles de destino crypto wallet">
+        <ParamField body="chain" type="string" required>
+          Red blockchain (por ejemplo, "stellar")
+        </ParamField>
+        <ParamField body="address" type="string" required>
+          Dirección de la wallet
+        </ParamField>
+        <ParamField body="memo" type="string" required>
+          Memo o etiqueta para la transacción
+        </ParamField>
+      </Expandable>
+
+      <Expandable title="ID de código QR">
+        <ParamField body="qrCodeId" type="string" required>
+          ID del código QR obtenido durante el proceso de preview
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Respuesta
+
+<ResponseField name="success" type="boolean">
+  Indica si la operación fue exitosa.
+</ResponseField>
+
+<ResponseField name="id" type="string">
+  El id del proceso de payout. Usa este id para consultar el estado del proceso.
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/v1/payouts' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data-raw '{
+    "onBehalfOf": "123",
+    "amount": 1000,
+    "source": {
+        "paymentRail": "stellar",
+        "currency": "usdc",
+        "address": "123123"
+    },
+    "deductFromBalance": true,
+    "quoteId": "efaaf971-6d8b-4f36-be36-187c9f68fc06",
+    "destination": {
+        "type": "bank",
+        "currency": "cop",
+        "details": {
+            "country": "CO",
+            "accountType": "savings",
+            "bankAccountNumber": "1234567890",
+            "bankCode": "876",
+            "beneficiary": {
+                "email": "beneficiary@example.com",
+                "documentType": "CC",
+                "documentNumber": "12345678",
+                "firstName": "John",
+                "lastName": "Doe",
+                "phone": "+573001234567",
+                "city": "Bogotá",
+                "state": "Cundinamarca",
+                "address": "Calle 123 #45-67",
+                "country": "CO",
+                "type": "individual"
+            }
+        }
+    }
+}'
+```
+
+```js Javascript
+const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/v1/payouts', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'api-key': '<api-key>'
+  },
+  body: JSON.stringify({
+    onBehalfOf: "123",
+    amount: 1000,
+    source: {
+      paymentRail: "stellar",
+      currency: "usdc",
+      address: "123123"
+    },
+    deductFromBalance: true,
+    quoteId: "efaaf971-6d8b-4f36-be36-187c9f68fc06",
+    destination: {
+      type: "crypto_wallet",
+      currency: "usdc",
+      details: {
+        chain: "stellar",
+        address: "GCFXIZY4K5",
+        memo: "123123"
+      }
+    }
+  })
+});
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "success": true,
+  "id": "3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1"
+}
+```
+
+</ResponseExample>

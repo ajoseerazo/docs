@@ -1,0 +1,28 @@
+---
+title: "Obtener payin por ID interno"
+api: "GET https://stablecoin-api.sandbox.getmeru.com/v1/payins/:id"
+description: "Obtiene un payin por su id interno."
+---
+
+### Parámetros
+
+<ParamField path="id" type="string" required>
+  Id interno del payin.
+</ParamField>
+
+### Respuesta
+
+Devuelve un objeto payin.
+
+### Respuestas de error
+
+<ResponseExample>
+
+```json 404
+{
+  "success": false,
+  "error": "Not Found"
+}
+```
+
+</ResponseExample>

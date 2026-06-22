@@ -1,0 +1,28 @@
+---
+title: "Obtener payin por ID externo"
+api: "GET https://stablecoin-api.sandbox.getmeru.com/v1/payins/external/:externalId"
+description: "Obtiene un payin por su externalId."
+---
+
+### Parámetros
+
+<ParamField path="externalId" type="string" required>
+  Id de referencia del cliente.
+</ParamField>
+
+### Respuesta
+
+Devuelve un objeto payin.
+
+### Respuestas de error
+
+<ResponseExample>
+
+```json 404
+{
+  "success": false,
+  "error": "Not Found"
+}
+```
+
+</ResponseExample>

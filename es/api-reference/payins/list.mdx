@@ -1,0 +1,36 @@
+---
+title: "Listar payins"
+api: "GET https://stablecoin-api.sandbox.getmeru.com/v1/payins"
+description: "Devuelve los payins en una lista dentro de data, con metadatos de paginación."
+---
+
+### Parámetros de consulta
+
+<ParamField query="page" type="number">
+  Número de página (por defecto 1).
+</ParamField>
+
+<ParamField query="pageSize" type="number">
+  Tamaño de página (por defecto 20, máximo 100).
+</ParamField>
+
+<ParamField query="startDate" type="string">
+  Fecha de inicio (ISO-8601).
+</ParamField>
+
+<ParamField query="endDate" type="string">
+  Fecha de fin (ISO-8601).
+</ParamField>
+
+### Respuesta
+
+<ResponseExample>
+
+```json 200
+{
+  "data": [],
+  "meta": { "page": 1, "pageSize": 20, "total": 0, "totalPages": 1 }
+}
+```
+
+</ResponseExample>

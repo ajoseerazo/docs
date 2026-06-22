@@ -1,0 +1,266 @@
+---
+title: "Webhooks"
+description: "Recibí eventos de pago en tiempo real mediante webhooks"
+---
+
+Los webhooks te permiten recibir notificaciones en tiempo real sobre eventos de pago. Cuando cambia el estado de un pago, enviamos una solicitud POST a la URL de webhook que configuraste, con los detalles del evento.
+
+## Configuración de la URL del webhook
+
+Configurá tu URL de webhook en tu panel de comercio o vía la API. La URL debe ser accesible públicamente y usar HTTPS.
+
+## Seguridad de los webhooks
+
+Todas las solicitudes de webhook se firman con HMAC-SHA256 para garantizar su autenticidad. La firma se incluye en el encabezado `X-Meru-Signature`.
+
+### Verificar las firmas de los webhooks
+
+Para verificar que un webhook proviene de nosotros, debés validar la firma usando tu secreto de webhook:
+
+```js
+const crypto = require('crypto');
+
+function verifyWebhookSignature(payload, signature, secret) {
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(payload, 'utf8')
+    .digest('hex');
+  
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expectedSignature)
+  );
+}
+
+// Example usage
+app.post('/webhook', (req, res) => {
+  const signature = req.headers['x-meru-signature'];
+  const payload = JSON.stringify(req.body);
+  
+  if (!verifyWebhookSignature(payload, signature, process.env.WEBHOOK_SECRET)) {
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+  
+  // Process the webhook
+  handleWebhookEvent(req.body);
+  res.status(200).json({ received: true });
+});
+```
+
+```python
+import hmac
+import hashlib
+
+def verify_webhook_signature(payload, signature, secret):
+    expected_signature = hmac.new(
+        secret.encode('utf-8'),
+        payload.encode('utf-8'),
+        hashlib.sha256
+    ).hexdigest()
+    
+    return hmac.compare_digest(signature, expected_signature)
+
+# Example usage with Flask
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    signature = request.headers.get('X-Meru-Signature')
+    payload = request.get_data(as_text=True)
+    
+    if not verify_webhook_signature(payload, signature, os.environ['WEBHOOK_SECRET']):
+        return jsonify({'error': 'Invalid signature'}), 401
+    
+    # Process the webhook
+    handle_webhook_event(request.json)
+    return jsonify({'received': True}), 200
+```
+
+## Eventos de webhook
+
+### Cambio de estado del pago
+
+Se envía cuando cambia el estado de un pago.
+
+**Tipo de evento:** `payment.status.changed`
+
+```json
+{
+  "event": "payment.status.changed",
+  "paymentId": "pay_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+  "orderId": "ORD-12345",
+  "status": "paid",
+  "amount": 99.99,
+  "taxAmount": 8.99,
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### Pago creado
+
+Se envía cuando se crea un pago nuevo (cuando se genera el pago por código QR).
+
+**Tipo de evento:** `payment.created`
+
+```json
+{
+  "event": "payment.created",
+  "paymentId": "pay_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+  "orderId": "ORD-12345",
+  "status": "created",
+  "amount": 99.99,
+  "taxAmount": 8.99,
+  "expiresAt": "2024-01-15T10:30:00Z",
+  "timestamp": "2024-01-15T10:00:00Z"
+}
+```
+
+## Estados del pago
+
+| Estado | Descripción |
+|--------|-------------|
+| `created` | El pago fue creado y el pago por código QR está activo |
+| `paid` | El pago se completó correctamente |
+| `cancelled` | El pago fue cancelado por el cliente o el comercio |
+| `expired` | El pago por código QR expiró sin completarse |
+
+## Encabezados del webhook
+
+Todas las solicitudes de webhook incluyen los siguientes encabezados:
+
+| Encabezado | Descripción |
+|--------|-------------|
+| `Content-Type` | `application/json` |
+| `X-Meru-Signature` | Firma HMAC-SHA256 del cuerpo de la solicitud |
+| `X-Meru-Event` | El tipo de evento (por ejemplo, `payment.status.changed`) |
+| `X-Meru-Delivery-Id` | Identificador único de esta entrega del webhook |
+
+## Buenas prácticas
+
+### 1. Verificá siempre las firmas
+
+Nunca proceses eventos de webhook sin verificar la firma. Esto evita que se procesen solicitudes maliciosas.
+
+### 2. Respondé rápido
+
+Respondé a las solicitudes de webhook dentro de los 5 segundos. Si necesitás más tiempo para procesar el evento, confirmá la recepción de inmediato y procesá de forma asíncrona.
+
+### 3. Manejá duplicados
+
+Los webhooks pueden enviarse varias veces para el mismo evento. Implementá idempotencia para manejar los eventos duplicados sin problemas.
+
+### 4. Registrá los eventos de webhook
+
+Registrá todos los eventos de webhook para depuración y auditoría.
+
+### 5. Manejo de errores
+
+Si tu endpoint de webhook devuelve un código de estado distinto de 2xx, reintentaremos la entrega con backoff exponencial.
+
+## Ejemplo de implementación
+
+Acá tenés un ejemplo completo de un manejador de webhooks:
+
+```js
+const express = require('express');
+const crypto = require('crypto');
+
+const app = express();
+app.use(express.json());
+
+app.post('/webhook', (req, res) => {
+  const signature = req.headers['x-meru-signature'];
+  const eventType = req.headers['x-meru-event'];
+  const deliveryId = req.headers['x-meru-delivery-id'];
+  
+  // Verify signature
+  const payload = JSON.stringify(req.body);
+  const expectedSignature = crypto
+    .createHmac('sha256', process.env.WEBHOOK_SECRET)
+    .update(payload, 'utf8')
+    .digest('hex');
+  
+  if (!crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(expectedSignature)
+  )) {
+    console.error('Invalid webhook signature');
+    return res.status(401).json({ error: 'Invalid signature' });
+  }
+  
+  // Log the event
+  console.log(`Received webhook: ${eventType}`, {
+    deliveryId,
+    paymentId: req.body.paymentId,
+    orderId: req.body.orderId,
+    status: req.body.status
+  });
+  
+  // Process based on event type
+  switch (eventType) {
+    case 'payment.status.changed':
+      handlePaymentStatusChanged(req.body);
+      break;
+    case 'payment.created':
+      handlePaymentCreated(req.body);
+      break;
+    default:
+      console.warn(`Unknown event type: ${eventType}`);
+  }
+  
+  // Acknowledge receipt
+  res.status(200).json({ received: true });
+});
+
+function handlePaymentStatusChanged(data) {
+  // Update your database with the new payment status
+  console.log(`Payment ${data.paymentId} status changed to ${data.status}`);
+  
+  if (data.status === 'paid') {
+    // Trigger fulfillment process
+    console.log(`Payment completed for order ${data.orderId}`);
+  }
+}
+
+function handlePaymentCreated(data) {
+  // Log the new payment creation
+  console.log(`New payment created: ${data.paymentId} for order ${data.orderId}`);
+}
+
+app.listen(3000, () => {
+  console.log('Webhook server listening on port 3000');
+});
+```
+
+## Probar los webhooks
+
+Podés probar tu endpoint de webhook con herramientas como ngrok para exponer tu servidor local:
+
+```bash
+# Install ngrok
+npm install -g ngrok
+
+# Expose your local server
+ngrok http 3000
+
+# Use the ngrok URL as your webhook endpoint
+```
+
+## Solución de problemas
+
+### Problemas comunes
+
+1. **Firma inválida**: asegurate de usar el secreto de webhook correcto y el método de verificación de firma adecuado.
+
+2. **Errores de timeout**: respondé a los webhooks dentro de los 5 segundos para evitar timeouts.
+
+3. **Eventos duplicados**: implementá idempotencia usando el encabezado `X-Meru-Delivery-Id`.
+
+4. **Problemas con el certificado SSL**: asegurate de que tu endpoint de webhook tenga un certificado SSL válido.
+
+### Obtener ayuda
+
+Si tenés problemas con los webhooks:
+
+1. Revisá los registros de entrega de webhooks en tu panel de comercio
+2. Verificá que tu endpoint sea accesible públicamente
+3. Asegurate de verificar correctamente la firma
+4. Contactá a soporte con el `X-Meru-Delivery-Id` de las entregas fallidas específicas

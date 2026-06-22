@@ -1,0 +1,219 @@
+---
+title: "Crear solicitud individual"
+api: "POST https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/applications/individual"
+description: "Este endpoint crea una solicitud de tarjeta individual completa con todos los datos del cliente"
+---
+
+### Cuerpo
+
+<ParamField body="firstName" type="string" required>
+  Nombre del solicitante (máximo 50 caracteres)
+</ParamField>
+
+<ParamField body="lastName" type="string" required>
+  Apellido del solicitante (máximo 50 caracteres)
+</ParamField>
+
+<ParamField body="birthDate" type="string" required>
+  Fecha de nacimiento en formato YYYY-MM-DD
+</ParamField>
+
+<ParamField body="nationalId" type="string" required>
+  Número de identificación nacional
+</ParamField>
+
+<ParamField body="countryOfIssue" type="string" required>
+  Código de país de dos letras donde se emitió el documento (por ejemplo, "US")
+</ParamField>
+
+<ParamField body="email" type="string" required>
+  Correo electrónico del solicitante
+</ParamField>
+
+<ParamField body="phoneCountryCode" type="string" required>
+  Código de país del teléfono (1-3 caracteres, por ejemplo, "1" para US)
+</ParamField>
+
+<ParamField body="phoneNumber" type="string" required>
+  Número de teléfono (1-15 caracteres)
+</ParamField>
+
+<ParamField body="walletAddress" type="string">
+  Dirección de wallet blockchain (opcional)
+</ParamField>
+
+<ParamField body="ipAddress" type="string" required>
+  Dirección IP del solicitante
+</ParamField>
+
+<ParamField body="occupation" type="string" required>
+  Ocupación del solicitante
+</ParamField>
+
+<ParamField body="annualSalary" type="number" required>
+  Salario anual
+</ParamField>
+
+<ParamField body="accountPurpose" type="string" required>
+  Propósito de apertura de la cuenta
+</ParamField>
+
+<ParamField body="expectedMonthlyVolume" type="number" required>
+  Volumen mensual de transacciones esperado
+</ParamField>
+
+<ParamField body="isTermsOfServiceAccepted" type="boolean" required>
+  Si el solicitante aceptó los términos del servicio
+</ParamField>
+
+<ParamField body="hasExistingDocuments" type="boolean">
+  Si el solicitante ya tiene documentos en archivo
+</ParamField>
+
+<ParamField body="address" type="object" required>
+  Dirección física del solicitante
+
+  <Expandable title="Objeto address">
+    <ParamField body="line1" type="string" required>
+      Dirección línea 1 (máximo 100 caracteres)
+    </ParamField>
+    <ParamField body="line2" type="string">
+      Dirección línea 2 (máximo 100 caracteres)
+    </ParamField>
+    <ParamField body="city" type="string" required>
+      Ciudad (máximo 50 caracteres)
+    </ParamField>
+    <ParamField body="region" type="string" required>
+      Estado o región (máximo 50 caracteres)
+    </ParamField>
+    <ParamField body="postalCode" type="string" required>
+      Código postal (1-9 caracteres)
+    </ParamField>
+    <ParamField body="countryCode" type="string" required>
+      Código de país de dos letras (por ejemplo, "US")
+    </ParamField>
+    <ParamField body="country" type="string">
+      Nombre del país (máximo 50 caracteres)
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Respuesta
+
+<ResponseField name="success" type="boolean">
+  Indica si la operación fue exitosa
+</ResponseField>
+
+<ResponseField name="userId" type="string">
+  El identificador único del usuario de la solicitud creada
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Estado de la solicitud: `pending`, `approved`, `rejected` o `requires_documents`
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/applications/individual' \
+--header 'Content-Type: application/json' \
+--header 'api-key: <api-key>' \
+--data-raw '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "birthDate": "1990-01-15",
+    "nationalId": "123456789",
+    "countryOfIssue": "US",
+    "email": "john.doe@example.com",
+    "phoneCountryCode": "1",
+    "phoneNumber": "5551234567",
+    "walletAddress": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+    "ipAddress": "192.168.1.1",
+    "occupation": "Software Engineer",
+    "annualSalary": 100000,
+    "accountPurpose": "Personal expenses and investments",
+    "expectedMonthlyVolume": 5000,
+    "isTermsOfServiceAccepted": true,
+    "address": {
+        "line1": "123 Main St",
+        "line2": "Apt 4B",
+        "city": "New York",
+        "region": "NY",
+        "postalCode": "10001",
+        "countryCode": "US",
+        "country": "United States"
+    }
+}'
+```
+
+```js Javascript
+const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/api/v1/cards-program/applications/individual', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'api-key': '<api-key>'
+  },
+  body: JSON.stringify({
+    firstName: "John",
+    lastName: "Doe",
+    birthDate: "1990-01-15",
+    nationalId: "123456789",
+    countryOfIssue: "US",
+    email: "john.doe@example.com",
+    phoneCountryCode: "1",
+    phoneNumber: "5551234567",
+    walletAddress: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+    ipAddress: "192.168.1.1",
+    occupation: "Software Engineer",
+    annualSalary: 100000,
+    accountPurpose: "Personal expenses and investments",
+    expectedMonthlyVolume: 5000,
+    isTermsOfServiceAccepted: true,
+    address: {
+      line1: "123 Main St",
+      line2: "Apt 4B",
+      city: "New York",
+      region: "NY",
+      postalCode: "10001",
+      countryCode: "US",
+      country: "United States"
+    }
+  })
+});
+
+const data = await response.json();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "success": true,
+  "userId": "3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+  "status": "pending"
+}
+```
+
+</ResponseExample>
+
+### Respuestas de error
+
+<ResponseExample>
+
+```json 401
+{
+  "success": false,
+  "error": "Unauthorized. Please check your authentication credentials."
+}
+```
+
+```json 400
+{
+  "success": false,
+  "error": "Invalid application data. Please check all required fields."
+}
+```
+
+</ResponseExample>

@@ -1,0 +1,16 @@
+/* Solid navbar so the gradient background doesn't bleed into the header (Bridge-style separation) */
+#navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #ececec;
+}
+
+.dark #navbar {
+  background-color: #0b0d0f;
+  border-bottom-color: #1c2024;
+}
+
+/* Lime neon accent on Changelog date badges (Meru signature pop) */
+[data-component-part="update-label"] {
+  background-color: #C6F84E !important;
+  color: #191C1F !important;
+}

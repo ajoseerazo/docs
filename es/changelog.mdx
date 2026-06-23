@@ -1,0 +1,28 @@
+---
+title: "Changelog"
+description: "Novedades y cambios en la API y la documentación de Meru"
+---
+
+<Update label="2026-06-23">
+  ## Filtro por rango de fechas y export
+
+  Los endpoints de listado de payins y payouts ahora aceptan los filtros
+  `startDate` y `endDate` (ISO 8601). Los nuevos endpoints `GET /v1/payins/export`
+  y `GET /v1/payouts/export` descargan el rango completo filtrado en CSV (por
+  defecto) o JSON.
+</Update>
+
+<Update label="2026-06-23">
+  ## Referencia de webhooks
+
+  La documentación de webhooks ahora refleja los payloads reales: los eventos
+  `payout.update` y `balance.updated`, la lista completa de estados de payout,
+  los campos de `data` y cómo verificar las firmas de las solicitudes.
+</Update>
+
+<Update label="2026-06-22">
+  ## Documentación en español
+
+  La referencia de la API de Meru ya está disponible en español. Usa el selector de
+  idioma en la barra de navegación para cambiar entre inglés y español.
+</Update>

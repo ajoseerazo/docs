@@ -1,266 +1,304 @@
 ---
 title: "Webhooks"
-description: "Recibí eventos de pago en tiempo real mediante webhooks"
+description: "Recibe eventos de payouts y depósitos en tiempo real mediante webhooks"
 ---
 
-Los webhooks te permiten recibir notificaciones en tiempo real sobre eventos de pago. Cuando cambia el estado de un pago, enviamos una solicitud POST a la URL de webhook que configuraste, con los detalles del evento.
+Los webhooks te permiten recibir notificaciones en tiempo real cuando un payout o un depósito crypto cambia de estado. Cuando ocurre un evento, enviamos una solicitud `POST` firmada al endpoint de webhook que configuraste, con el cuerpo del evento.
 
-## Configuración de la URL del webhook
+## Configuración del endpoint
 
-Configurá tu URL de webhook en tu panel de comercio o vía la API. La URL debe ser accesible públicamente y usar HTTPS.
+Tu endpoint debe ser accesible públicamente por **HTTPS** y responder con cualquier código de estado **2xx**. Configura su URL con tu contacto de Meru o desde el dashboard. Al crearlo recibes un **secreto de firma** (con prefijo `whsec_`) — guárdalo de forma segura; lo necesitas para verificar las firmas.
 
-## Seguridad de los webhooks
+## Estructura del evento
 
-Todas las solicitudes de webhook se firman con HMAC-SHA256 para garantizar su autenticidad. La firma se incluye en el encabezado `X-Meru-Signature`.
+Todos los cuerpos de entrega tienen la misma forma de nivel superior:
 
-### Verificar las firmas de los webhooks
+```json
+{
+  "type": "payout.update",
+  "timestamp": "2026-06-23T12:00:00.000Z",
+  "data": { }
+}
+```
 
-Para verificar que un webhook proviene de nosotros, debés validar la firma usando tu secreto de webhook:
+<ResponseField name="type" type="string">
+  El tipo de evento. Uno de `payout.update` o `balance.updated`.
+</ResponseField>
 
-```js
-const crypto = require('crypto');
+<ResponseField name="timestamp" type="string">
+  Marca de tiempo ISO 8601 de cuándo se emitió el evento.
+</ResponseField>
 
-function verifyWebhookSignature(payload, signature, secret) {
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(payload, 'utf8')
-    .digest('hex');
-  
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  );
+<ResponseField name="data" type="object">
+  El cuerpo del evento. Su forma depende de `type` (ver más abajo).
+</ResponseField>
+
+## Headers de entrega
+
+Cada solicitud incluye estos headers:
+
+| Header | Descripción |
+|--------|-------------|
+| `Content-Type` | `application/json` |
+| `webhook-id` | ID único del mensaje/entrega. Úsalo para idempotencia. |
+| `webhook-timestamp` | Marca de tiempo Unix (segundos) de la entrega, usada para verificar la firma. |
+| `webhook-signature` | Lista separada por espacios de firmas `v1,<base64>` (más de una durante la rotación del secreto). |
+
+## Verificación de firmas
+
+Cada solicitud se firma con **HMAC-SHA256** para que puedas confirmar que viene de nosotros. El contenido firmado es el string `{webhook-id}.{webhook-timestamp}.{cuerpoCrudo}`, con clave en tu secreto de firma (decodificado de base64 tras quitar el prefijo `whsec_`), y el resultado se codifica en base64 dentro del header `webhook-signature`.
+
+Para verificar: recalcula la firma sobre el **cuerpo crudo de la solicitud** (antes de cualquier parseo de JSON) y compárala contra el header en tiempo constante. Rechaza las entregas cuyo `webhook-timestamp` tenga más de 5 minutos.
+
+<CodeGroup>
+
+```js Node.js
+import crypto from "crypto";
+
+function verifySignature(rawBody, headers, secret) {
+  const id = headers["webhook-id"];
+  const timestamp = headers["webhook-timestamp"];
+  const header = headers["webhook-signature"]; // "v1,<base64> v1,<base64>"
+
+  // Rechaza entregas con más de 5 minutos
+  if (Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) return false;
+
+  const key = Buffer.from(secret.replace(/^whsec_/, ""), "base64");
+  const signedContent = `${id}.${timestamp}.${rawBody}`;
+  const expected = crypto
+    .createHmac("sha256", key)
+    .update(signedContent)
+    .digest("base64");
+
+  // El header puede traer varias entradas "v1,<sig>" separadas por espacios
+  return header.split(" ").some((part) => {
+    const sig = part.split(",")[1];
+    return (
+      sig.length === expected.length &&
+      crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))
+    );
+  });
 }
 
-// Example usage
-app.post('/webhook', (req, res) => {
-  const signature = req.headers['x-meru-signature'];
-  const payload = JSON.stringify(req.body);
-  
-  if (!verifyWebhookSignature(payload, signature, process.env.WEBHOOK_SECRET)) {
-    return res.status(401).json({ error: 'Invalid signature' });
+app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
+  // req.body es el cuerpo CRUDO (Buffer/string), no JSON parseado
+  if (!verifySignature(req.body.toString(), req.headers, process.env.WEBHOOK_SECRET)) {
+    return res.status(401).json({ error: "Invalid signature" });
   }
-  
-  // Process the webhook
-  handleWebhookEvent(req.body);
+  const event = JSON.parse(req.body); // { type, timestamp, data }
+  handleWebhookEvent(event);
   res.status(200).json({ received: true });
 });
 ```
 
-```python
-import hmac
-import hashlib
+```python Python
+import hmac, hashlib, base64, time
 
-def verify_webhook_signature(payload, signature, secret):
-    expected_signature = hmac.new(
-        secret.encode('utf-8'),
-        payload.encode('utf-8'),
-        hashlib.sha256
-    ).hexdigest()
-    
-    return hmac.compare_digest(signature, expected_signature)
+def verify_signature(raw_body: bytes, headers, secret: str) -> bool:
+    msg_id = headers["webhook-id"]
+    timestamp = headers["webhook-timestamp"]
+    sig_header = headers["webhook-signature"]  # "v1,<base64> v1,<base64>"
 
-# Example usage with Flask
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    signature = request.headers.get('X-Meru-Signature')
-    payload = request.get_data(as_text=True)
-    
-    if not verify_webhook_signature(payload, signature, os.environ['WEBHOOK_SECRET']):
-        return jsonify({'error': 'Invalid signature'}), 401
-    
-    # Process the webhook
-    handle_webhook_event(request.json)
-    return jsonify({'received': True}), 200
+    # Rechaza entregas con más de 5 minutos
+    if abs(time.time() - int(timestamp)) > 300:
+        return False
+
+    key = base64.b64decode(secret.replace("whsec_", "", 1))
+    signed_content = f"{msg_id}.{timestamp}.".encode() + raw_body
+    expected = base64.b64encode(
+        hmac.new(key, signed_content, hashlib.sha256).digest()
+    ).decode()
+
+    for part in sig_header.split(" "):
+        _, _, sig = part.partition(",")
+        if hmac.compare_digest(sig, expected):
+            return True
+    return False
 ```
 
-## Eventos de webhook
+</CodeGroup>
 
-### Cambio de estado del pago
+## Evento: `payout.update`
 
-Se envía cuando cambia el estado de un pago.
+Se envía cada vez que un payout cambia de estado. El `type` del evento es siempre `payout.update`, sin importar la transición — lee `data.state` (y `data.previousState`) para saber qué pasó.
 
-**Tipo de evento:** `payment.status.changed`
+### Campos de `data`
 
-```json
+<ResponseField name="payoutId" type="string">El identificador del payout.</ResponseField>
+<ResponseField name="companyId" type="string">El identificador de tu empresa.</ResponseField>
+<ResponseField name="externalId" type="string">Tu referencia externa, si se proporcionó.</ResponseField>
+<ResponseField name="onBehalfOf" type="string">El usuario/entidad para quien se hizo el payout.</ResponseField>
+<ResponseField name="previousState" type="string | null">El estado previo a esta transición. Es `null` en el primer evento (creación).</ResponseField>
+<ResponseField name="state" type="string">El estado actual del payout. Ver la tabla de abajo.</ResponseField>
+<ResponseField name="amount" type="number">El monto del payout, en unidades mínimas (por ejemplo, centavos).</ResponseField>
+<ResponseField name="currency" type="string">La moneda de destino.</ResponseField>
+<ResponseField name="destinationType" type="string">Uno de `wallet`, `bank` o `qr_code`.</ResponseField>
+<ResponseField name="errorReason" type="string">Presente solo cuando el payout falló.</ResponseField>
+<ResponseField name="txHash" type="string">Hash de la transacción on-chain. Presente para destinos `wallet` y `bank`.</ResponseField>
+<ResponseField name="extraData" type="object">
+  Metadatos del riel bancario. Presente solo para `destinationType = bank`.
+  <Expandable title="extraData">
+    <ResponseField name="finalAmount" type="string">Monto final liquidado.</ResponseField>
+    <ResponseField name="finalAmountCurrency" type="string">Moneda del monto liquidado.</ResponseField>
+    <ResponseField name="uetr" type="string">Referencia única de transacción de extremo a extremo (SEPA/SWIFT).</ResponseField>
+    <ResponseField name="trackingNumber" type="string">Número de seguimiento.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="createdAt" type="string">Marca de tiempo de creación (ISO 8601).</ResponseField>
+<ResponseField name="updatedAt" type="string">Marca de tiempo de última actualización (ISO 8601).</ResponseField>
+
+### Estados del payout (`data.state`)
+
+| Estado | Significado |
+|--------|-------------|
+| `created` | Payout creado |
+| `in_review` | En revisión (pre-partner) |
+| `awaiting_funds` | Esperando fondos |
+| `funds_received` | Fondos recibidos |
+| `payment_submitted` | Enviado / en proceso |
+| `payment_processed` | Completado exitosamente |
+| `undeliverable` | No entregable |
+| `returned` | Devuelto |
+| `refunded` | Reembolsado |
+| `canceled` | Cancelado |
+| `error` | Error / fallido |
+
+<ResponseExample>
+
+```json payout.update
 {
-  "event": "payment.status.changed",
-  "paymentId": "pay_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
-  "orderId": "ORD-12345",
-  "status": "paid",
-  "amount": 99.99,
-  "taxAmount": 8.99,
-  "timestamp": "2024-01-15T10:30:00Z"
+  "type": "payout.update",
+  "timestamp": "2026-06-23T12:00:00.000Z",
+  "data": {
+    "payoutId": "3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+    "companyId": "cmp_123",
+    "externalId": "ext-001",
+    "onBehalfOf": "user-123",
+    "previousState": "payment_submitted",
+    "state": "payment_processed",
+    "amount": 100000,
+    "currency": "cop",
+    "destinationType": "bank",
+    "txHash": "0xabc123",
+    "extraData": {
+      "finalAmount": "99950",
+      "finalAmountCurrency": "cop",
+      "uetr": "97ed4827-7b6f-4b1a-9b0e-2a1c3d4e5f60",
+      "trackingNumber": "TRK-0001"
+    },
+    "createdAt": "2026-06-23T11:00:00.000Z",
+    "updatedAt": "2026-06-23T12:00:00.000Z"
+  }
 }
 ```
 
-### Pago creado
+</ResponseExample>
 
-Se envía cuando se crea un pago nuevo (cuando se genera el pago por código QR).
+## Evento: `balance.updated`
 
-**Tipo de evento:** `payment.created`
+Se envía cuando un **depósito** crypto cambia de estado. Su `data` difiere del de `payout.update`: lleva detalles del depósito on-chain y no incluye `onBehalfOf`, `destinationType` ni `extraData`.
 
-```json
+### Campos de `data`
+
+<ResponseField name="payoutId" type="string">El identificador del depósito (se llama `payoutId` por consistencia de transporte).</ResponseField>
+<ResponseField name="companyId" type="string">El identificador de tu empresa.</ResponseField>
+<ResponseField name="externalId" type="string">Tu referencia externa, si se proporcionó.</ResponseField>
+<ResponseField name="previousState" type="null">Siempre `null` para eventos de depósito.</ResponseField>
+<ResponseField name="state" type="string">El estado actual del depósito.</ResponseField>
+<ResponseField name="amount" type="number">El monto del depósito, en unidades mínimas.</ResponseField>
+<ResponseField name="currency" type="string">La moneda del depósito (por ejemplo, `usdc`).</ResponseField>
+<ResponseField name="blockchain" type="string">La blockchain donde se liquidó el depósito.</ResponseField>
+<ResponseField name="txHash" type="string | null">Hash de la transacción on-chain, cuando está disponible.</ResponseField>
+<ResponseField name="errorReason" type="string | null">Motivo de la falla, cuando aplica.</ResponseField>
+<ResponseField name="updatedAt" type="string">Marca de tiempo de última actualización (ISO 8601).</ResponseField>
+
+<ResponseExample>
+
+```json balance.updated
 {
-  "event": "payment.created",
-  "paymentId": "pay_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
-  "orderId": "ORD-12345",
-  "status": "created",
-  "amount": 99.99,
-  "taxAmount": 8.99,
-  "expiresAt": "2024-01-15T10:30:00Z",
-  "timestamp": "2024-01-15T10:00:00Z"
+  "type": "balance.updated",
+  "timestamp": "2026-06-23T12:00:00.000Z",
+  "data": {
+    "payoutId": "dep_9f86d081884c7d65",
+    "companyId": "cmp_123",
+    "externalId": "ext-009",
+    "previousState": null,
+    "state": "funds_received",
+    "amount": 100000,
+    "currency": "usdc",
+    "blockchain": "ethereum",
+    "txHash": "0xdef456",
+    "errorReason": null,
+    "updatedAt": "2026-06-23T12:00:00.000Z"
+  }
 }
 ```
 
-## Estados del pago
+</ResponseExample>
 
-| Estado | Descripción |
-|--------|-------------|
-| `created` | El pago fue creado y el pago por código QR está activo |
-| `paid` | El pago se completó correctamente |
-| `cancelled` | El pago fue cancelado por el cliente o el comercio |
-| `expired` | El pago por código QR expiró sin completarse |
+## Idempotencia
 
-## Encabezados del webhook
+El mismo evento puede entregarse más de una vez. Usa el header **`webhook-id`** como clave de idempotencia: guarda los IDs procesados y descarta los duplicados.
 
-Todas las solicitudes de webhook incluyen los siguientes encabezados:
+## Reintentos
 
-| Encabezado | Descripción |
-|--------|-------------|
-| `Content-Type` | `application/json` |
-| `X-Meru-Signature` | Firma HMAC-SHA256 del cuerpo de la solicitud |
-| `X-Meru-Event` | El tipo de evento (por ejemplo, `payment.status.changed`) |
-| `X-Meru-Delivery-Id` | Identificador único de esta entrega del webhook |
+Si tu endpoint no devuelve un estado `2xx` (o agota el tiempo de espera), reintentamos la entrega automáticamente con backoff exponencial a lo largo de varias horas, respetando `Retry-After` en respuestas de error. Confirma rápido (en pocos segundos) y procesa el trabajo pesado de forma asíncrona. Los endpoints que fallan de forma persistente pueden quedar deshabilitados.
 
 ## Buenas prácticas
 
-### 1. Verificá siempre las firmas
+- **Verifica siempre la firma** contra el cuerpo crudo antes de procesar.
+- **Responde rápido** con un `2xx` y procesa de forma asíncrona.
+- **Sé idempotente** usando `webhook-id`.
+- **No asumas orden** — apóyate en `state`/`previousState` y `updatedAt`, no en el orden de entrega.
+- **Registra** el `webhook-id`, el `type` y el `data.state` de cada entrega.
 
-Nunca proceses eventos de webhook sin verificar la firma. Esto evita que se procesen solicitudes maliciosas.
-
-### 2. Respondé rápido
-
-Respondé a las solicitudes de webhook dentro de los 5 segundos. Si necesitás más tiempo para procesar el evento, confirmá la recepción de inmediato y procesá de forma asíncrona.
-
-### 3. Manejá duplicados
-
-Los webhooks pueden enviarse varias veces para el mismo evento. Implementá idempotencia para manejar los eventos duplicados sin problemas.
-
-### 4. Registrá los eventos de webhook
-
-Registrá todos los eventos de webhook para depuración y auditoría.
-
-### 5. Manejo de errores
-
-Si tu endpoint de webhook devuelve un código de estado distinto de 2xx, reintentaremos la entrega con backoff exponencial.
-
-## Ejemplo de implementación
-
-Acá tenés un ejemplo completo de un manejador de webhooks:
+## Ejemplo de handler
 
 ```js
-const express = require('express');
-const crypto = require('crypto');
+import express from "express";
+import crypto from "crypto";
 
 const app = express();
-app.use(express.json());
 
-app.post('/webhook', (req, res) => {
-  const signature = req.headers['x-meru-signature'];
-  const eventType = req.headers['x-meru-event'];
-  const deliveryId = req.headers['x-meru-delivery-id'];
-  
-  // Verify signature
-  const payload = JSON.stringify(req.body);
-  const expectedSignature = crypto
-    .createHmac('sha256', process.env.WEBHOOK_SECRET)
-    .update(payload, 'utf8')
-    .digest('hex');
-  
-  if (!crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  )) {
-    console.error('Invalid webhook signature');
-    return res.status(401).json({ error: 'Invalid signature' });
+app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
+  const raw = req.body.toString();
+  if (!verifySignature(raw, req.headers, process.env.WEBHOOK_SECRET)) {
+    return res.status(401).json({ error: "Invalid signature" });
   }
-  
-  // Log the event
-  console.log(`Received webhook: ${eventType}`, {
-    deliveryId,
-    paymentId: req.body.paymentId,
-    orderId: req.body.orderId,
-    status: req.body.status
-  });
-  
-  // Process based on event type
-  switch (eventType) {
-    case 'payment.status.changed':
-      handlePaymentStatusChanged(req.body);
+
+  const event = JSON.parse(raw);
+  switch (event.type) {
+    case "payout.update":
+      console.log(
+        `Payout ${event.data.payoutId}: ${event.data.previousState} → ${event.data.state}`,
+      );
       break;
-    case 'payment.created':
-      handlePaymentCreated(req.body);
+    case "balance.updated":
+      console.log(`Depósito ${event.data.payoutId}: ${event.data.state}`);
       break;
     default:
-      console.warn(`Unknown event type: ${eventType}`);
+      console.warn(`Tipo de evento no manejado: ${event.type}`);
   }
-  
-  // Acknowledge receipt
+
   res.status(200).json({ received: true });
 });
 
-function handlePaymentStatusChanged(data) {
-  // Update your database with the new payment status
-  console.log(`Payment ${data.paymentId} status changed to ${data.status}`);
-  
-  if (data.status === 'paid') {
-    // Trigger fulfillment process
-    console.log(`Payment completed for order ${data.orderId}`);
-  }
-}
-
-function handlePaymentCreated(data) {
-  // Log the new payment creation
-  console.log(`New payment created: ${data.paymentId} for order ${data.orderId}`);
-}
-
-app.listen(3000, () => {
-  console.log('Webhook server listening on port 3000');
-});
+app.listen(3000, () => console.log("Servidor de webhooks escuchando en el puerto 3000"));
 ```
 
-## Probar los webhooks
+## Pruebas
 
-Podés probar tu endpoint de webhook con herramientas como ngrok para exponer tu servidor local:
+Expón tu servidor local con un túnel (por ejemplo, ngrok) y registra la URL pública como tu endpoint de webhook:
 
 ```bash
-# Install ngrok
-npm install -g ngrok
-
-# Expose your local server
 ngrok http 3000
-
-# Use the ngrok URL as your webhook endpoint
 ```
 
 ## Solución de problemas
 
-### Problemas comunes
+- **Firma inválida**: verifica contra el cuerpo **crudo** (no un JSON re-serializado), usa el secreto `whsec_` correcto y lee los headers `webhook-id`/`webhook-timestamp`/`webhook-signature` tal cual.
+- **Eventos duplicados**: deduplica usando `webhook-id`.
+- **Eventos perdidos**: asegúrate de que tu endpoint devuelva `2xx` rápido; las respuestas `non-2xx` y los timeouts se reintentan, pero las fallas persistentes pueden deshabilitar la entrega.
+- **Errores de SSL**: tu endpoint necesita un certificado TLS válido.
 
-1. **Firma inválida**: asegurate de usar el secreto de webhook correcto y el método de verificación de firma adecuado.
-
-2. **Errores de timeout**: respondé a los webhooks dentro de los 5 segundos para evitar timeouts.
-
-3. **Eventos duplicados**: implementá idempotencia usando el encabezado `X-Meru-Delivery-Id`.
-
-4. **Problemas con el certificado SSL**: asegurate de que tu endpoint de webhook tenga un certificado SSL válido.
-
-### Obtener ayuda
-
-Si tenés problemas con los webhooks:
-
-1. Revisá los registros de entrega de webhooks en tu panel de comercio
-2. Verificá que tu endpoint sea accesible públicamente
-3. Asegurate de verificar correctamente la firma
-4. Contactá a soporte con el `X-Meru-Delivery-Id` de las entregas fallidas específicas
+Para ayuda con una entrega específica, contacta a soporte con el `webhook-id`.

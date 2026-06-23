@@ -1,7 +1,7 @@
 ---
-title: "List Payins"
-api: "GET https://stablecoin-api.sandbox.getmeru.com/v1/payins"
-description: "Returns payins as a list nested in data, with pagination metadata."
+title: "List Payouts"
+api: "GET https://stablecoin-api.sandbox.getmeru.com/v1/payouts"
+description: "Returns payouts as a list nested in data, with pagination metadata."
 ---
 
 ### Query Params
@@ -33,9 +33,15 @@ description: "Returns payins as a list nested in data, with pagination metadata.
 ```json 200
 {
   "data": [],
-  "meta": { "page": 1, "pageSize": 20, "total": 0, "totalPages": 1 }
+  "meta": {
+    "page": 1,
+    "pageSize": 20,
+    "total": 0,
+    "totalPages": 1,
+    "hasNext": false,
+    "hasPrev": false
+  }
 }
 ```
 
 </ResponseExample>
-

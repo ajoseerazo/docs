@@ -1,7 +1,7 @@
 ---
-title: "Listar payins"
-api: "GET https://stablecoin-api.sandbox.getmeru.com/v1/payins"
-description: "Devuelve los payins en una lista dentro de data, con metadatos de paginación."
+title: "Listar payouts"
+api: "GET https://stablecoin-api.sandbox.getmeru.com/v1/payouts"
+description: "Devuelve los payouts en una lista dentro de data, con metadatos de paginación."
 ---
 
 ### Parámetros de consulta
@@ -33,7 +33,14 @@ description: "Devuelve los payins en una lista dentro de data, con metadatos de 
 ```json 200
 {
   "data": [],
-  "meta": { "page": 1, "pageSize": 20, "total": 0, "totalPages": 1 }
+  "meta": {
+    "page": 1,
+    "pageSize": 20,
+    "total": 0,
+    "totalPages": 1,
+    "hasNext": false,
+    "hasPrev": false
+  }
 }
 ```
 

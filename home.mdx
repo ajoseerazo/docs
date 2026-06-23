@@ -1,0 +1,71 @@
+---
+title: "Meru API"
+description: "Stablecoin payments, one API — accept payins, send payouts, issue cards, and move money across fiat and crypto rails."
+mode: "custom"
+---
+
+<div className="px-4 py-16 lg:py-28 max-w-3xl mx-auto text-center">
+  <h1 className="text-5xl font-semibold tracking-tight text-gray-900 dark:text-zinc-50">
+    Stablecoin payments, one API.
+  </h1>
+  <p className="mt-6 text-lg text-gray-500 dark:text-zinc-400 max-w-2xl mx-auto">
+    Accept payins, send payouts, get quotes, issue cards, and move money across
+    fiat and crypto rails.
+  </p>
+  <div className="mt-8">
+    <a
+      href="/api-reference/authentication"
+      className="inline-block rounded-lg bg-[#7C3AED] hover:bg-[#6D28D9] px-6 py-3 text-white font-medium no-underline transition-colors"
+    >
+      Get started →
+    </a>
+  </div>
+</div>
+
+<div className="max-w-5xl mx-auto px-6 pb-4">
+  <h2 className="text-xl font-semibold text-gray-900 dark:text-zinc-50">Quickstart guides</h2>
+</div>
+
+<div className="max-w-5xl mx-auto px-6 pb-8">
+  <CardGroup cols={3}>
+    <Card title="Accept payins" icon="money-bill-wave" href="/api-reference/payins/create">
+      Accept incoming payments, then list or export them by date range.
+    </Card>
+    <Card title="Send payouts" icon="paper-plane" href="/api-reference/payouts/create">
+      Pay out to bank accounts, wallets, or QR, and track every state.
+    </Card>
+    <Card title="Get quotes" icon="calculator" href="/api-reference/quotes/quotes">
+      Fetch real-time FX quotes before moving money.
+    </Card>
+    <Card title="Issue cards" icon="credit-card" href="/api-reference/cards/card-create">
+      Issue stablecoin-backed cards and manage their full lifecycle.
+    </Card>
+    <Card title="Check balances" icon="wallet" href="/api-reference/balances/balances">
+      Check your company balances across currencies.
+    </Card>
+    <Card title="Receive webhooks" icon="bell" href="/api-reference/webhooks">
+      Get real-time payout and deposit events with signed webhooks.
+    </Card>
+  </CardGroup>
+</div>
+
+<div className="max-w-5xl mx-auto px-6 pb-4">
+  <h2 className="text-xl font-semibold text-gray-900 dark:text-zinc-50">Resources</h2>
+</div>
+
+<div className="max-w-5xl mx-auto px-6 pb-16">
+  <CardGroup cols={3}>
+    <Card title="Authentication" icon="key" href="/api-reference/authentication">
+      Authenticate requests with your API key and pick an environment.
+    </Card>
+    <Card title="API reference" icon="code" href="/api-reference/authentication">
+      Browse every endpoint, with parameters and examples.
+    </Card>
+    <Card title="Changelog" icon="clock-rotate-left" href="/changelog">
+      See the latest updates to the API and the docs.
+    </Card>
+    <Card title="Support" icon="headset" href="mailto:a@getmeru.com">
+      Get help from our team with integration or technical issues.
+    </Card>
+  </CardGroup>
+</div>

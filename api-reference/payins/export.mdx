@@ -1,0 +1,114 @@
+---
+title: "Export Payins"
+api: "GET https://stablecoin-api.sandbox.getmeru.com/v1/payins/export"
+description: "Download a date-filtered range of payins as CSV (default) or JSON, for reconciliation."
+---
+
+### Query Params
+
+<ParamField query="startDate" type="string">
+  Inclusive lower bound on `createdAt` (ISO 8601). Optional.
+</ParamField>
+
+<ParamField query="endDate" type="string">
+  Inclusive upper bound on `createdAt` (ISO 8601). Optional.
+</ParamField>
+
+<ParamField query="format" type="string" default="csv">
+  Output format: `csv` (default) or `json`.
+</ParamField>
+
+<Note>
+  `endDate` is a timestamp, not a calendar day: `2024-01-31` resolves to `2024-01-31T00:00:00Z` and excludes that day — to include the full day, pass `2024-01-31T23:59:59Z`. When both dates are provided, `startDate` must be before or equal to `endDate`, otherwise the API responds with `400 Bad Request`.
+</Note>
+
+### Response
+
+The response is a file download (`Content-Disposition: attachment; filename="payins_<startDate>_<endDate>.<format>"`) and is streamed, so it stays memory-efficient over large date ranges.
+
+**`format=csv`** (default) → `Content-Type: text/csv`. The first line is the header row, then one row per payin. Values are RFC 4180-escaped. Columns, in order:
+
+| Column | Description |
+| --- | --- |
+| `id` | Payin identifier. |
+| `externalId` | Your external reference, if any. |
+| `state` | Current payin state. |
+| `onBehalfOf` | End user/entity the payin was made for. |
+| `amount` | Payin amount. |
+| `developerFee` | Developer fee applied, if any. |
+| `partnerName` | Settlement partner name. |
+| `partnerTransactionId` | Partner-side transaction id. |
+| `partnerStatus` | Partner-side status. |
+| `createdAt` | ISO 8601 creation timestamp. |
+| `updatedAt` | ISO 8601 last-update timestamp. |
+
+**`format=json`** → `Content-Type: application/json`. An envelope with the rows in `data` and the number of records emitted in `count`.
+
+<RequestExample>
+
+```bash cURL (CSV)
+curl --location --request GET 'https://stablecoin-api.sandbox.getmeru.com/v1/payins/export?startDate=2024-01-01T00:00:00Z&endDate=2024-01-31T23:59:59Z&format=csv' \
+--header 'api-key: <api-key>' \
+--output payins_2024-01.csv
+```
+
+```bash cURL (JSON)
+curl --location --request GET 'https://stablecoin-api.sandbox.getmeru.com/v1/payins/export?startDate=2024-01-01T00:00:00Z&endDate=2024-01-31T23:59:59Z&format=json' \
+--header 'api-key: <api-key>'
+```
+
+```js Javascript
+const params = new URLSearchParams({
+  startDate: '2024-01-01T00:00:00Z',
+  endDate: '2024-01-31T23:59:59Z',
+  format: 'csv',
+});
+
+const response = await fetch(
+  `https://stablecoin-api.sandbox.getmeru.com/v1/payins/export?${params}`,
+  { method: 'GET', headers: { 'api-key': '<api-key>' } },
+);
+
+// CSV: read as text. For format=json use `await response.json()`.
+const csv = await response.text();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```text 200 (CSV)
+id,externalId,state,onBehalfOf,amount,developerFee,partnerName,partnerTransactionId,partnerStatus,createdAt,updatedAt
+3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1,ext-001,completed,user-123,1000,2.5,Bridge,tx_abc123,settled,2024-01-15T10:00:00Z,2024-01-15T10:25:00Z
+```
+
+```json 200 (JSON)
+{
+  "data": [
+    {
+      "id": "3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+      "externalId": "ext-001",
+      "state": "completed",
+      "onBehalfOf": "user-123",
+      "amount": 1000,
+      "developerFee": 2.5,
+      "partnerName": "Bridge",
+      "partnerTransactionId": "tx_abc123",
+      "partnerStatus": "settled",
+      "createdAt": "2024-01-15T10:00:00Z",
+      "updatedAt": "2024-01-15T10:25:00Z"
+    }
+  ],
+  "count": 1
+}
+```
+
+```json 400
+{
+  "message": ["startDate must be before or equal to endDate"],
+  "error": "Bad Request",
+  "statusCode": 400
+}
+```
+
+</ResponseExample>

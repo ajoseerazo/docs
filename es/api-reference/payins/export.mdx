@@ -1,0 +1,114 @@
+---
+title: "Exportar payins"
+api: "GET https://stablecoin-api.sandbox.getmeru.com/v1/payins/export"
+description: "Descarga un rango de payins filtrado por fechas en CSV (por defecto) o JSON, para conciliación."
+---
+
+### Parámetros de consulta
+
+<ParamField query="startDate" type="string">
+  Cota inferior inclusiva sobre `createdAt` (ISO 8601). Opcional.
+</ParamField>
+
+<ParamField query="endDate" type="string">
+  Cota superior inclusiva sobre `createdAt` (ISO 8601). Opcional.
+</ParamField>
+
+<ParamField query="format" type="string" default="csv">
+  Formato de salida: `csv` (por defecto) o `json`.
+</ParamField>
+
+<Note>
+  `endDate` es un timestamp, no un día calendario: `2024-01-31` equivale a `2024-01-31T00:00:00Z` y excluye ese día — para incluir el día completo, envía `2024-01-31T23:59:59Z`. Cuando se envían ambas fechas, `startDate` debe ser anterior o igual a `endDate`; de lo contrario la API responde `400 Bad Request`.
+</Note>
+
+### Respuesta
+
+La respuesta es una descarga de archivo (`Content-Disposition: attachment; filename="payins_<startDate>_<endDate>.<format>"`) y se transmite en streaming, por lo que mantiene un uso de memoria eficiente en rangos de fechas grandes.
+
+**`format=csv`** (por defecto) → `Content-Type: text/csv`. La primera línea es la fila de encabezados, seguida de una fila por payin. Los valores se escapan según RFC 4180. Columnas, en orden:
+
+| Columna | Descripción |
+| --- | --- |
+| `id` | Identificador del payin. |
+| `externalId` | Tu referencia externa, si la hay. |
+| `state` | Estado actual del payin. |
+| `onBehalfOf` | Usuario/entidad para quien se hizo el payin. |
+| `amount` | Monto del payin. |
+| `developerFee` | Comisión de desarrollador aplicada, si la hay. |
+| `partnerName` | Nombre del partner de liquidación. |
+| `partnerTransactionId` | ID de transacción del lado del partner. |
+| `partnerStatus` | Estado del lado del partner. |
+| `createdAt` | Timestamp de creación (ISO 8601). |
+| `updatedAt` | Timestamp de última actualización (ISO 8601). |
+
+**`format=json`** → `Content-Type: application/json`. Un envoltorio con las filas en `data` y la cantidad de registros emitidos en `count`.
+
+<RequestExample>
+
+```bash cURL (CSV)
+curl --location --request GET 'https://stablecoin-api.sandbox.getmeru.com/v1/payins/export?startDate=2024-01-01T00:00:00Z&endDate=2024-01-31T23:59:59Z&format=csv' \
+--header 'api-key: <api-key>' \
+--output payins_2024-01.csv
+```
+
+```bash cURL (JSON)
+curl --location --request GET 'https://stablecoin-api.sandbox.getmeru.com/v1/payins/export?startDate=2024-01-01T00:00:00Z&endDate=2024-01-31T23:59:59Z&format=json' \
+--header 'api-key: <api-key>'
+```
+
+```js Javascript
+const params = new URLSearchParams({
+  startDate: '2024-01-01T00:00:00Z',
+  endDate: '2024-01-31T23:59:59Z',
+  format: 'csv',
+});
+
+const response = await fetch(
+  `https://stablecoin-api.sandbox.getmeru.com/v1/payins/export?${params}`,
+  { method: 'GET', headers: { 'api-key': '<api-key>' } },
+);
+
+// CSV: lee la respuesta como texto. Para format=json usa `await response.json()`.
+const csv = await response.text();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```text 200 (CSV)
+id,externalId,state,onBehalfOf,amount,developerFee,partnerName,partnerTransactionId,partnerStatus,createdAt,updatedAt
+3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1,ext-001,completed,user-123,1000,2.5,Bridge,tx_abc123,settled,2024-01-15T10:00:00Z,2024-01-15T10:25:00Z
+```
+
+```json 200 (JSON)
+{
+  "data": [
+    {
+      "id": "3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+      "externalId": "ext-001",
+      "state": "completed",
+      "onBehalfOf": "user-123",
+      "amount": 1000,
+      "developerFee": 2.5,
+      "partnerName": "Bridge",
+      "partnerTransactionId": "tx_abc123",
+      "partnerStatus": "settled",
+      "createdAt": "2024-01-15T10:00:00Z",
+      "updatedAt": "2024-01-15T10:25:00Z"
+    }
+  ],
+  "count": 1
+}
+```
+
+```json 400
+{
+  "message": ["startDate must be before or equal to endDate"],
+  "error": "Bad Request",
+  "statusCode": 400
+}
+```
+
+</ResponseExample>

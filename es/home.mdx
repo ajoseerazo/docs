@@ -1,0 +1,71 @@
+---
+title: "API de Meru"
+description: "Pagos con stablecoins, una sola API — acepta payins, envía payouts, emite tarjetas y mueve dinero entre rieles fiat y crypto."
+mode: "custom"
+---
+
+<div className="px-4 py-16 lg:py-28 max-w-3xl mx-auto text-center">
+  <h1 className="text-5xl font-semibold tracking-tight text-gray-900 dark:text-zinc-50">
+    Pagos con stablecoins, una sola API.
+  </h1>
+  <p className="mt-6 text-lg text-gray-500 dark:text-zinc-400 max-w-2xl mx-auto">
+    Acepta payins, envía payouts, obtén cotizaciones, emite tarjetas y mueve
+    dinero entre rieles fiat y crypto.
+  </p>
+  <div className="mt-8">
+    <a
+      href="/es/api-reference/authentication"
+      className="inline-block rounded-lg bg-[#7C3AED] hover:bg-[#6D28D9] px-6 py-3 text-white font-medium no-underline transition-colors"
+    >
+      Comenzar →
+    </a>
+  </div>
+</div>
+
+<div className="max-w-5xl mx-auto px-6 pb-4">
+  <h2 className="text-xl font-semibold text-gray-900 dark:text-zinc-50">Guías de inicio rápido</h2>
+</div>
+
+<div className="max-w-5xl mx-auto px-6 pb-8">
+  <CardGroup cols={3}>
+    <Card title="Aceptar payins" icon="money-bill-wave" href="/es/api-reference/payins/create">
+      Acepta pagos entrantes y lístalos o expórtalos por rango de fechas.
+    </Card>
+    <Card title="Enviar payouts" icon="paper-plane" href="/es/api-reference/payouts/create">
+      Paga a cuentas bancarias, wallets o QR, y sigue cada estado.
+    </Card>
+    <Card title="Obtener cotizaciones" icon="calculator" href="/es/api-reference/quotes/quotes">
+      Consulta cotizaciones de cambio en tiempo real antes de mover dinero.
+    </Card>
+    <Card title="Emitir tarjetas" icon="credit-card" href="/es/api-reference/cards/card-create">
+      Emite tarjetas respaldadas por stablecoins y gestiona su ciclo de vida.
+    </Card>
+    <Card title="Consultar saldos" icon="wallet" href="/es/api-reference/balances/balances">
+      Consulta los saldos de tu empresa en distintas monedas.
+    </Card>
+    <Card title="Recibir webhooks" icon="bell" href="/es/api-reference/webhooks">
+      Recibe eventos de payouts y depósitos en tiempo real con webhooks firmados.
+    </Card>
+  </CardGroup>
+</div>
+
+<div className="max-w-5xl mx-auto px-6 pb-4">
+  <h2 className="text-xl font-semibold text-gray-900 dark:text-zinc-50">Recursos</h2>
+</div>
+
+<div className="max-w-5xl mx-auto px-6 pb-16">
+  <CardGroup cols={3}>
+    <Card title="Autenticación" icon="key" href="/es/api-reference/authentication">
+      Autentica las solicitudes con tu API key y elige un entorno.
+    </Card>
+    <Card title="Referencia de la API" icon="code" href="/es/api-reference/authentication">
+      Explora todos los endpoints, con parámetros y ejemplos.
+    </Card>
+    <Card title="Changelog" icon="clock-rotate-left" href="/es/changelog">
+      Mira las últimas novedades de la API y la documentación.
+    </Card>
+    <Card title="Soporte" icon="headset" href="mailto:a@getmeru.com">
+      Recibe ayuda de nuestro equipo con la integración o problemas técnicos.
+    </Card>
+  </CardGroup>
+</div>

@@ -8,9 +8,12 @@
   "favicon": "/favicon.svg",
   "theme": "mint",
   "colors": {
-    "primary": "#191c1f",
-    "light": "#60a5fa",
-    "dark": "#0D001D"
+    "primary": "#7C3AED",
+    "light": "#A78BFA",
+    "dark": "#191C1F"
+  },
+  "background": {
+    "decoration": "gradient"
   },
   "navbar": {
     "links": [
@@ -33,7 +36,7 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "/api-reference/authentication"
+      "destination": "/home"
     }
   ],
   "navigation": {
@@ -43,7 +46,13 @@
         "default": true,
         "tabs": [
           {
+            "tab": "Home",
+            "icon": "house",
+            "pages": ["home"]
+          },
+          {
             "tab": "API Reference",
+            "icon": "code",
             "href": "api-reference",
             "groups": [
               {
@@ -63,7 +72,9 @@
                 "pages": [
                   "api-reference/payouts/create",
                   "api-reference/payouts/preview-qr-code",
-                  "api-reference/payouts/get"
+                  "api-reference/payouts/get",
+                  "api-reference/payouts/list",
+                  "api-reference/payouts/export"
                 ]
               },
               {
@@ -73,6 +84,7 @@
                   "api-reference/payins/get-payment",
                   "api-reference/payins/create",
                   "api-reference/payins/list",
+                  "api-reference/payins/export",
                   "api-reference/payins/get-by-id",
                   "api-reference/payins/get-by-external-id",
                   "api-reference/payins/quotes",
@@ -143,6 +155,11 @@
                 "pages": ["api-reference/webhooks"]
               }
             ]
+          },
+          {
+            "tab": "Changelog",
+            "icon": "history",
+            "pages": ["changelog"]
           }
         ]
       },
@@ -150,7 +167,13 @@
         "language": "es",
         "tabs": [
           {
+            "tab": "Inicio",
+            "icon": "house",
+            "pages": ["es/home"]
+          },
+          {
             "tab": "Referencia de la API",
+            "icon": "code",
             "href": "es/api-reference",
             "groups": [
               {
@@ -173,7 +196,9 @@
                 "pages": [
                   "es/api-reference/payouts/create",
                   "es/api-reference/payouts/preview-qr-code",
-                  "es/api-reference/payouts/get"
+                  "es/api-reference/payouts/get",
+                  "es/api-reference/payouts/list",
+                  "es/api-reference/payouts/export"
                 ]
               },
               {
@@ -183,6 +208,7 @@
                   "es/api-reference/payins/get-payment",
                   "es/api-reference/payins/create",
                   "es/api-reference/payins/list",
+                  "es/api-reference/payins/export",
                   "es/api-reference/payins/get-by-id",
                   "es/api-reference/payins/get-by-external-id",
                   "es/api-reference/payins/quotes",
@@ -253,6 +279,11 @@
                 "pages": ["es/api-reference/webhooks"]
               }
             ]
+          },
+          {
+            "tab": "Changelog",
+            "icon": "history",
+            "pages": ["es/changelog"]
           }
         ]
       }

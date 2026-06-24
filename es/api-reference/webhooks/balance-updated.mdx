@@ -1,0 +1,46 @@
+---
+title: "Depósito actualizado"
+description: "Se envía cuando un depósito (fiat o cripto) cambia de estado."
+---
+
+**Tipo de evento:** `balance.updated`
+
+Cubre tanto **depósitos fiat** (riel bancario) como **depósitos cripto on-chain** — se distinguen por el campo `blockchain` (`bridge` para fiat, o el nombre de la red como `polygon`, `tron`, `stellar` para cripto). Ver [Resumen de webhooks](/es/api-reference/webhooks/overview) para entrega, headers y verificación de firma.
+
+### Campos de `data`
+
+<ResponseField name="payoutId" type="string">El identificador del depósito (se llama `payoutId` por consistencia de transporte).</ResponseField>
+<ResponseField name="companyId" type="string">El identificador de tu empresa.</ResponseField>
+<ResponseField name="externalId" type="string">Tu referencia externa, si se proporcionó.</ResponseField>
+<ResponseField name="previousState" type="null">Siempre `null` para eventos de depósito.</ResponseField>
+<ResponseField name="state" type="string">El estado actual del depósito.</ResponseField>
+<ResponseField name="amount" type="number">El monto del depósito, en unidades mínimas.</ResponseField>
+<ResponseField name="currency" type="string">La moneda del depósito (por ejemplo, `usdc`).</ResponseField>
+<ResponseField name="blockchain" type="string">`bridge` para depósitos fiat, o el nombre de la red (por ejemplo, `polygon`, `tron`, `stellar`) para depósitos cripto on-chain.</ResponseField>
+<ResponseField name="txHash" type="string | null">Hash de la transacción on-chain, cuando está disponible.</ResponseField>
+<ResponseField name="errorReason" type="string | null">Motivo de la falla, cuando aplica.</ResponseField>
+<ResponseField name="updatedAt" type="string">Marca de tiempo de última actualización (ISO 8601).</ResponseField>
+
+<ResponseExample>
+
+```json balance.updated
+{
+  "type": "balance.updated",
+  "timestamp": "2026-06-23T12:00:00.000Z",
+  "data": {
+    "payoutId": "dep_9f86d081884c7d65",
+    "companyId": "cmp_123",
+    "externalId": "ext-009",
+    "previousState": null,
+    "state": "funds_received",
+    "amount": 100000,
+    "currency": "usdc",
+    "blockchain": "polygon",
+    "txHash": "0xdef456",
+    "errorReason": null,
+    "updatedAt": "2026-06-23T12:00:00.000Z"
+  }
+}
+```
+
+</ResponseExample>

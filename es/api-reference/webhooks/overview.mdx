@@ -1,0 +1,196 @@
+---
+title: "Resumen"
+description: "Recibe eventos de payouts, depósitos, customers y tarjetas en tiempo real mediante webhooks"
+---
+
+Los webhooks te permiten recibir notificaciones en tiempo real sobre payouts, depósitos, onboarding/verificación de customers y transacciones de tarjeta. Cuando ocurre un evento, enviamos una solicitud `POST` firmada al endpoint de webhook que configuraste, con el cuerpo del evento.
+
+## Configuración del endpoint
+
+Tu endpoint debe ser accesible públicamente por **HTTPS** y responder con cualquier código de estado **2xx**. Configura su URL con tu contacto de Meru o desde el dashboard. Al crearlo recibes un **secreto de firma** (con prefijo `whsec_`) — guárdalo de forma segura; lo necesitas para verificar las firmas.
+
+## Estructura del evento
+
+Todos los cuerpos de entrega tienen la misma forma de nivel superior:
+
+```json
+{
+  "type": "payout.update",
+  "timestamp": "2026-06-23T12:00:00.000Z",
+  "data": { }
+}
+```
+
+<ResponseField name="type" type="string">El tipo de evento (ver los eventos más abajo).</ResponseField>
+<ResponseField name="timestamp" type="string">Marca de tiempo ISO 8601 de cuándo se emitió el evento.</ResponseField>
+<ResponseField name="data" type="object">El cuerpo del evento. Su forma depende de `type`.</ResponseField>
+
+## Eventos
+
+| Evento | Descripción |
+|--------|-------------|
+| [`payout.update`](/es/api-reference/webhooks/payout-update) | Un payout cambió de estado |
+| [`balance.updated`](/es/api-reference/webhooks/balance-updated) | Un depósito (fiat o cripto) cambió de estado |
+| [`customer.status.updated`](/es/api-reference/webhooks/customer-status-updated) | Cambió el KYC/KYB/estado del customer |
+| [`customer.product.request.updated`](/es/api-reference/webhooks/customer-product-request-updated) | Avanzó el onboarding/aprovisionamiento de un producto |
+| [`card.transaction.*`](/es/api-reference/webhooks/card-transaction) | Se creó/actualizó una transacción de tarjeta |
+
+## Headers de entrega
+
+Cada solicitud incluye estos headers:
+
+| Header | Descripción |
+|--------|-------------|
+| `Content-Type` | `application/json` |
+| `webhook-id` | ID único del mensaje/entrega. Úsalo para idempotencia. |
+| `webhook-timestamp` | Marca de tiempo Unix (segundos) de la entrega, usada para verificar la firma. |
+| `webhook-signature` | Lista separada por espacios de firmas `v1,<base64>` (más de una durante la rotación del secreto). |
+
+## Verificación de firmas
+
+Cada solicitud se firma con **HMAC-SHA256** para que puedas confirmar que viene de nosotros. El contenido firmado es el string `{webhook-id}.{webhook-timestamp}.{cuerpoCrudo}`, con clave en tu secreto de firma (decodificado de base64 tras quitar el prefijo `whsec_`), y el resultado se codifica en base64 dentro del header `webhook-signature`.
+
+Para verificar: recalcula la firma sobre el **cuerpo crudo de la solicitud** (antes de cualquier parseo de JSON) y compárala contra el header en tiempo constante. Rechaza las entregas cuyo `webhook-timestamp` tenga más de 5 minutos.
+
+<CodeGroup>
+
+```js Node.js
+import crypto from "crypto";
+
+function verifySignature(rawBody, headers, secret) {
+  const id = headers["webhook-id"];
+  const timestamp = headers["webhook-timestamp"];
+  const header = headers["webhook-signature"]; // "v1,<base64> v1,<base64>"
+
+  // Rechaza entregas con más de 5 minutos
+  if (Math.abs(Date.now() / 1000 - Number(timestamp)) > 300) return false;
+
+  const key = Buffer.from(secret.replace(/^whsec_/, ""), "base64");
+  const signedContent = `${id}.${timestamp}.${rawBody}`;
+  const expected = crypto
+    .createHmac("sha256", key)
+    .update(signedContent)
+    .digest("base64");
+
+  // El header puede traer varias entradas "v1,<sig>" separadas por espacios
+  return header.split(" ").some((part) => {
+    const sig = part.split(",")[1];
+    return (
+      sig.length === expected.length &&
+      crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))
+    );
+  });
+}
+
+app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
+  // req.body es el cuerpo CRUDO (Buffer/string), no JSON parseado
+  if (!verifySignature(req.body.toString(), req.headers, process.env.WEBHOOK_SECRET)) {
+    return res.status(401).json({ error: "Invalid signature" });
+  }
+  const event = JSON.parse(req.body); // { type, timestamp, data }
+  handleWebhookEvent(event);
+  res.status(200).json({ received: true });
+});
+```
+
+```python Python
+import hmac, hashlib, base64, time
+
+def verify_signature(raw_body: bytes, headers, secret: str) -> bool:
+    msg_id = headers["webhook-id"]
+    timestamp = headers["webhook-timestamp"]
+    sig_header = headers["webhook-signature"]  # "v1,<base64> v1,<base64>"
+
+    # Rechaza entregas con más de 5 minutos
+    if abs(time.time() - int(timestamp)) > 300:
+        return False
+
+    key = base64.b64decode(secret.replace("whsec_", "", 1))
+    signed_content = f"{msg_id}.{timestamp}.".encode() + raw_body
+    expected = base64.b64encode(
+        hmac.new(key, signed_content, hashlib.sha256).digest()
+    ).decode()
+
+    for part in sig_header.split(" "):
+        _, _, sig = part.partition(",")
+        if hmac.compare_digest(sig, expected):
+            return True
+    return False
+```
+
+</CodeGroup>
+
+## Idempotencia
+
+El mismo evento puede entregarse más de una vez. Usa el header **`webhook-id`** como clave de idempotencia: guarda los IDs procesados y descarta los duplicados.
+
+## Reintentos
+
+Si tu endpoint no devuelve un estado `2xx` (o agota el tiempo de espera), reintentamos la entrega automáticamente con backoff exponencial a lo largo de varias horas, respetando `Retry-After` en respuestas de error. Confirma rápido (en pocos segundos) y procesa el trabajo pesado de forma asíncrona. Los endpoints que fallan de forma persistente pueden quedar deshabilitados.
+
+## Buenas prácticas
+
+- **Verifica siempre la firma** contra el cuerpo crudo antes de procesar.
+- **Responde rápido** con un `2xx` y procesa de forma asíncrona.
+- **Sé idempotente** usando `webhook-id`.
+- **No asumas orden** — apóyate en `state`/`previousState` y `updatedAt`, no en el orden de entrega.
+- **Registra** el `webhook-id`, el `type` y el `data` de cada entrega.
+
+## Ejemplo de handler
+
+```js
+import express from "express";
+import crypto from "crypto";
+
+const app = express();
+
+app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
+  const raw = req.body.toString();
+  if (!verifySignature(raw, req.headers, process.env.WEBHOOK_SECRET)) {
+    return res.status(401).json({ error: "Invalid signature" });
+  }
+
+  const event = JSON.parse(raw);
+  switch (event.type) {
+    case "payout.update":
+      console.log(`Payout ${event.data.payoutId}: ${event.data.previousState} → ${event.data.state}`);
+      break;
+    case "balance.updated":
+      console.log(`Depósito ${event.data.payoutId}: ${event.data.state}`);
+      break;
+    case "customer.status.updated":
+    case "customer.product.request.updated":
+      console.log(`Customer ${event.data.customerId}: ${event.type}`);
+      break;
+    case "card.transaction.created":
+    case "card.transaction.completed":
+    case "card.transaction.updated":
+    case "card.transaction.refund":
+      console.log(`Transacción de tarjeta ${event.data.cardId}: ${event.data.status}`);
+      break;
+    default:
+      console.warn(`Tipo de evento no manejado: ${event.type}`);
+  }
+
+  res.status(200).json({ received: true });
+});
+
+app.listen(3000, () => console.log("Servidor de webhooks escuchando en el puerto 3000"));
+```
+
+## Pruebas
+
+Expón tu servidor local con un túnel (por ejemplo, ngrok) y registra la URL pública como tu endpoint de webhook:
+
+```bash
+ngrok http 3000
+```
+
+## Solución de problemas
+
+- **Firma inválida**: verifica contra el cuerpo **crudo** (no un JSON re-serializado), usa el secreto `whsec_` correcto y lee los headers `webhook-id`/`webhook-timestamp`/`webhook-signature` tal cual.
+- **Eventos duplicados**: deduplica usando `webhook-id`.
+- **Eventos perdidos**: asegúrate de que tu endpoint devuelva `2xx` rápido; las respuestas `non-2xx` y los timeouts se reintentan, pero las fallas persistentes pueden deshabilitar la entrega.
+- **Errores de SSL**: tu endpoint necesita un certificado TLS válido.
+
+Para ayuda con una entrega específica, contacta a soporte con el `webhook-id`.

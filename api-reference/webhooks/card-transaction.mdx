@@ -1,0 +1,57 @@
+---
+title: "Card transactions"
+description: "Sent on each card transaction update (created, completed, updated, refund)."
+---
+
+**Event type:** `card.transaction.created` · `.completed` · `.updated` · `.refund`
+
+Sent on each card transaction update. The `type` suffix reflects the action: `card.transaction.created`, `.completed`, `.updated`, or `.refund`. See [Webhooks overview](/api-reference/webhooks/overview) for delivery, headers, and signature verification.
+
+### `data` fields
+
+<ResponseField name="customerId" type="string">The customer identifier.</ResponseField>
+<ResponseField name="cardId" type="string">The card identifier.</ResponseField>
+<ResponseField name="providerCardId" type="string">The card identifier at the issuing partner.</ResponseField>
+<ResponseField name="transactionId" type="string">The transaction identifier at the issuing partner (field name `rainTransactionId`).</ResponseField>
+<ResponseField name="action" type="string">The transaction action that triggered the event.</ResponseField>
+<ResponseField name="transactionType" type="string">Transaction type (e.g. `spend`, `payment`, `collateral`).</ResponseField>
+<ResponseField name="status" type="string">Transaction status: `pending`, `approved`, `declined`, `reversed`, or `settled`.</ResponseField>
+<ResponseField name="isRefund" type="boolean">Whether the transaction is a refund.</ResponseField>
+<ResponseField name="amount" type="number">Transaction amount in the card currency.</ResponseField>
+<ResponseField name="currency" type="string">Card currency.</ResponseField>
+<ResponseField name="localAmount" type="number">Amount in the local currency (minor units).</ResponseField>
+<ResponseField name="localCurrency" type="string">Local currency.</ResponseField>
+<ResponseField name="merchantName" type="string">Merchant name. Other merchant fields (`merchantId`, `merchantCategory`, `merchantCategoryCode`, and enriched variants) are also included.</ResponseField>
+<ResponseField name="authorizedAt" type="string | null">ISO 8601 authorization timestamp.</ResponseField>
+<ResponseField name="postedAt" type="string | null">ISO 8601 posting timestamp.</ResponseField>
+<ResponseField name="lastEventAt" type="string">ISO 8601 timestamp of the latest transaction event.</ResponseField>
+
+<ResponseExample>
+
+```json card.transaction.completed
+{
+  "type": "card.transaction.completed",
+  "timestamp": "2026-06-23T12:00:00.000Z",
+  "data": {
+    "customerId": "cus_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+    "cardId": "card_abc123",
+    "providerCardId": "card_abc123",
+    "rainTransactionId": "tx_9f86d081",
+    "action": "completed",
+    "transactionType": "spend",
+    "status": "settled",
+    "isRefund": false,
+    "amount": 25.5,
+    "currency": "USD",
+    "localAmount": 102000,
+    "localCurrency": "COP",
+    "merchantName": "Netflix",
+    "merchantCategoryCode": "5968",
+    "authorizedAt": "2026-06-23T11:59:50.000Z",
+    "postedAt": "2026-06-23T12:00:00.000Z",
+    "lastEventAt": "2026-06-23T12:00:00.000Z"
+  }
+}
+```
+
+</ResponseExample>

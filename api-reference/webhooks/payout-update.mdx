@@ -1,0 +1,80 @@
+---
+title: "Payout updated"
+description: "Sent whenever a payout changes state."
+---
+
+**Event type:** `payout.update`
+
+The event `type` is always `payout.update` regardless of the transition — read `data.state` (and `data.previousState`) to know what happened. See [Webhooks overview](/api-reference/webhooks/overview) for delivery, headers, and signature verification.
+
+### `data` fields
+
+<ResponseField name="payoutId" type="string">The payout identifier.</ResponseField>
+<ResponseField name="companyId" type="string">Your company identifier.</ResponseField>
+<ResponseField name="externalId" type="string">Your external reference, if one was provided.</ResponseField>
+<ResponseField name="onBehalfOf" type="string">The end user/entity the payout was made for.</ResponseField>
+<ResponseField name="previousState" type="string | null">The state before this transition. `null` on the first event.</ResponseField>
+<ResponseField name="state" type="string">The current payout state. See the table below.</ResponseField>
+<ResponseField name="amount" type="number">The payout amount, in minor units (e.g. cents).</ResponseField>
+<ResponseField name="currency" type="string">The destination currency.</ResponseField>
+<ResponseField name="destinationType" type="string">One of `wallet`, `bank`, or `qr_code`.</ResponseField>
+<ResponseField name="errorReason" type="string">Present only when the payout failed.</ResponseField>
+<ResponseField name="txHash" type="string">On-chain transaction hash. Present for `wallet` and `bank` destinations.</ResponseField>
+<ResponseField name="extraData" type="object">
+  Bank-rail metadata. Present only for `destinationType = bank`.
+  <Expandable title="extraData">
+    <ResponseField name="finalAmount" type="string">Final settled amount.</ResponseField>
+    <ResponseField name="finalAmountCurrency" type="string">Currency of the settled amount.</ResponseField>
+    <ResponseField name="uetr" type="string">SEPA/SWIFT unique end-to-end transaction reference.</ResponseField>
+    <ResponseField name="trackingNumber" type="string">Tracking number.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="createdAt" type="string">ISO 8601 creation timestamp.</ResponseField>
+<ResponseField name="updatedAt" type="string">ISO 8601 last-update timestamp.</ResponseField>
+
+### Payout states (`data.state`)
+
+| State | Meaning |
+|-------|---------|
+| `created` | Payout created |
+| `in_review` | In review (pre-partner) |
+| `awaiting_funds` | Awaiting funds |
+| `funds_received` | Funds received |
+| `payment_submitted` | Submitted / in progress |
+| `payment_processed` | Completed successfully |
+| `undeliverable` | Undeliverable |
+| `returned` | Returned |
+| `refunded` | Refunded |
+| `canceled` | Canceled |
+| `error` | Error / failed |
+
+<ResponseExample>
+
+```json payout.update
+{
+  "type": "payout.update",
+  "timestamp": "2026-06-23T12:00:00.000Z",
+  "data": {
+    "payoutId": "3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+    "companyId": "cmp_123",
+    "externalId": "ext-001",
+    "onBehalfOf": "user-123",
+    "previousState": "payment_submitted",
+    "state": "payment_processed",
+    "amount": 100000,
+    "currency": "cop",
+    "destinationType": "bank",
+    "txHash": "0xabc123",
+    "extraData": {
+      "finalAmount": "99950",
+      "finalAmountCurrency": "cop",
+      "uetr": "97ed4827-7b6f-4b1a-9b0e-2a1c3d4e5f60",
+      "trackingNumber": "TRK-0001"
+    },
+    "createdAt": "2026-06-23T11:00:00.000Z",
+    "updatedAt": "2026-06-23T12:00:00.000Z"
+  }
+}
+```
+
+</ResponseExample>

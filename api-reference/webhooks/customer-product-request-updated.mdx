@@ -1,0 +1,46 @@
+---
+title: "Product request updated"
+description: "Sent as a customer's product request progresses (onboarding, virtual accounts, cards)."
+---
+
+**Event type:** `customer.product.request.updated`
+
+Sent as a customer's product request progresses — onboarding and provisioning of products such as **virtual accounts** and **cards**. See [Webhooks overview](/api-reference/webhooks/overview) for delivery, headers, and signature verification.
+
+<Note>
+  Virtual-account provisioning is reported through this event (the account is a customer "product"). There is no dedicated `virtual_account.*` event today.
+</Note>
+
+### `data` fields
+
+<ResponseField name="customerId" type="string">The customer identifier.</ResponseField>
+<ResponseField name="product" type="string">The requested product (e.g. a virtual-account type or `CREDIT_CARDS`).</ResponseField>
+<ResponseField name="change" type="object">
+  <Expandable title="change">
+    <ResponseField name="phase" type="string">Request phase: `onboarding_queued`, `onboarding_inline_started`, `onboarding_completed`, `bridge_product_requested`, `cards_product_submitted`, or `product_status_updated`.</ResponseField>
+    <ResponseField name="status" type="string">Product status: `active`, `inactive`, `pending`, or `rejected`. Optional.</ResponseField>
+    <ResponseField name="requestedAt" type="string | null">When the product was requested. Optional.</ResponseField>
+    <ResponseField name="syncedAt" type="string">Last sync timestamp. Optional.</ResponseField>
+    <ResponseField name="onboarding" type="object">Onboarding detail (application status and verification/completion links), when applicable.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseExample>
+
+```json customer.product.request.updated
+{
+  "type": "customer.product.request.updated",
+  "timestamp": "2026-06-23T12:00:00.000Z",
+  "data": {
+    "customerId": "cus_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+    "product": "CREDIT_CARDS",
+    "change": {
+      "phase": "product_status_updated",
+      "status": "active",
+      "syncedAt": "2026-06-23T12:00:00.000Z"
+    }
+  }
+}
+```
+
+</ResponseExample>

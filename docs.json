@@ -152,7 +152,14 @@
               },
               {
                 "group": "Webhooks",
-                "pages": ["api-reference/webhooks"]
+                "pages": [
+                  "api-reference/webhooks/overview",
+                  "api-reference/webhooks/payout-update",
+                  "api-reference/webhooks/balance-updated",
+                  "api-reference/webhooks/customer-status-updated",
+                  "api-reference/webhooks/customer-product-request-updated",
+                  "api-reference/webhooks/card-transaction"
+                ]
               }
             ]
           },
@@ -276,7 +283,14 @@
               },
               {
                 "group": "Webhooks",
-                "pages": ["es/api-reference/webhooks"]
+                "pages": [
+                  "es/api-reference/webhooks/overview",
+                  "es/api-reference/webhooks/payout-update",
+                  "es/api-reference/webhooks/balance-updated",
+                  "es/api-reference/webhooks/customer-status-updated",
+                  "es/api-reference/webhooks/customer-product-request-updated",
+                  "es/api-reference/webhooks/card-transaction"
+                ]
               }
             ]
           },
@@ -290,9 +304,11 @@
     ]
   },
   "api": {
-    "auth": {
-      "method": "key",
-      "name": "api-key"
+    "mdx": {
+      "auth": {
+        "method": "key",
+        "name": "api-key"
+      }
     }
   }
 }

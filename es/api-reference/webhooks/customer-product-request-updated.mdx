@@ -1,0 +1,46 @@
+---
+title: "Solicitud de producto actualizada"
+description: "Se envía a medida que avanza la solicitud de un producto del customer (onboarding, cuentas virtuales, tarjetas)."
+---
+
+**Tipo de evento:** `customer.product.request.updated`
+
+Se envía a medida que avanza la solicitud de un producto del customer — onboarding y aprovisionamiento de productos como **cuentas virtuales** y **tarjetas**. Ver [Resumen de webhooks](/es/api-reference/webhooks/overview) para entrega, headers y verificación de firma.
+
+<Note>
+  El aprovisionamiento de cuentas virtuales se reporta a través de este evento (la cuenta es un "producto" del customer). Hoy no existe un evento `virtual_account.*` dedicado.
+</Note>
+
+### Campos de `data`
+
+<ResponseField name="customerId" type="string">El identificador del customer.</ResponseField>
+<ResponseField name="product" type="string">El producto solicitado (por ejemplo, un tipo de cuenta virtual o `CREDIT_CARDS`).</ResponseField>
+<ResponseField name="change" type="object">
+  <Expandable title="change">
+    <ResponseField name="phase" type="string">Fase de la solicitud: `onboarding_queued`, `onboarding_inline_started`, `onboarding_completed`, `bridge_product_requested`, `cards_product_submitted` o `product_status_updated`.</ResponseField>
+    <ResponseField name="status" type="string">Estado del producto: `active`, `inactive`, `pending` o `rejected`. Opcional.</ResponseField>
+    <ResponseField name="requestedAt" type="string | null">Cuándo se solicitó el producto. Opcional.</ResponseField>
+    <ResponseField name="syncedAt" type="string">Marca de tiempo de la última sincronización. Opcional.</ResponseField>
+    <ResponseField name="onboarding" type="object">Detalle del onboarding (estado de la solicitud y enlaces de verificación/completitud), cuando aplica.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseExample>
+
+```json customer.product.request.updated
+{
+  "type": "customer.product.request.updated",
+  "timestamp": "2026-06-23T12:00:00.000Z",
+  "data": {
+    "customerId": "cus_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+    "product": "CREDIT_CARDS",
+    "change": {
+      "phase": "product_status_updated",
+      "status": "active",
+      "syncedAt": "2026-06-23T12:00:00.000Z"
+    }
+  }
+}
+```
+
+</ResponseExample>

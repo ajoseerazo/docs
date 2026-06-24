@@ -1,0 +1,57 @@
+---
+title: "Transacciones de tarjeta"
+description: "Se envía con cada actualización de una transacción de tarjeta (created, completed, updated, refund)."
+---
+
+**Tipo de evento:** `card.transaction.created` · `.completed` · `.updated` · `.refund`
+
+Se envía con cada actualización de una transacción de tarjeta. El sufijo del `type` refleja la acción: `card.transaction.created`, `.completed`, `.updated` o `.refund`. Ver [Resumen de webhooks](/es/api-reference/webhooks/overview) para entrega, headers y verificación de firma.
+
+### Campos de `data`
+
+<ResponseField name="customerId" type="string">El identificador del customer.</ResponseField>
+<ResponseField name="cardId" type="string">El identificador de la tarjeta.</ResponseField>
+<ResponseField name="providerCardId" type="string">El identificador de la tarjeta en el partner emisor.</ResponseField>
+<ResponseField name="transactionId" type="string">El identificador de la transacción en el partner emisor (campo `rainTransactionId`).</ResponseField>
+<ResponseField name="action" type="string">La acción de la transacción que disparó el evento.</ResponseField>
+<ResponseField name="transactionType" type="string">Tipo de transacción (por ejemplo, `spend`, `payment`, `collateral`).</ResponseField>
+<ResponseField name="status" type="string">Estado de la transacción: `pending`, `approved`, `declined`, `reversed` o `settled`.</ResponseField>
+<ResponseField name="isRefund" type="boolean">Indica si la transacción es un reembolso.</ResponseField>
+<ResponseField name="amount" type="number">Monto de la transacción en la moneda de la tarjeta.</ResponseField>
+<ResponseField name="currency" type="string">Moneda de la tarjeta.</ResponseField>
+<ResponseField name="localAmount" type="number">Monto en la moneda local (unidades mínimas).</ResponseField>
+<ResponseField name="localCurrency" type="string">Moneda local.</ResponseField>
+<ResponseField name="merchantName" type="string">Nombre del comercio. También se incluyen otros campos del comercio (`merchantId`, `merchantCategory`, `merchantCategoryCode` y variantes enriquecidas).</ResponseField>
+<ResponseField name="authorizedAt" type="string | null">Marca de tiempo de autorización (ISO 8601).</ResponseField>
+<ResponseField name="postedAt" type="string | null">Marca de tiempo de registro (ISO 8601).</ResponseField>
+<ResponseField name="lastEventAt" type="string">Marca de tiempo del último evento de la transacción (ISO 8601).</ResponseField>
+
+<ResponseExample>
+
+```json card.transaction.completed
+{
+  "type": "card.transaction.completed",
+  "timestamp": "2026-06-23T12:00:00.000Z",
+  "data": {
+    "customerId": "cus_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+    "cardId": "card_abc123",
+    "providerCardId": "card_abc123",
+    "rainTransactionId": "tx_9f86d081",
+    "action": "completed",
+    "transactionType": "spend",
+    "status": "settled",
+    "isRefund": false,
+    "amount": 25.5,
+    "currency": "USD",
+    "localAmount": 102000,
+    "localCurrency": "COP",
+    "merchantName": "Netflix",
+    "merchantCategoryCode": "5968",
+    "authorizedAt": "2026-06-23T11:59:50.000Z",
+    "postedAt": "2026-06-23T12:00:00.000Z",
+    "lastEventAt": "2026-06-23T12:00:00.000Z"
+  }
+}
+```
+
+</ResponseExample>

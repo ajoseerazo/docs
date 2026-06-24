@@ -1,0 +1,38 @@
+---
+title: "Estado de customer actualizado"
+description: "Se envía cuando cambia la verificación o el estado de un customer (KYC, KYB, estado)."
+---
+
+**Tipo de evento:** `customer.status.updated`
+
+Se envía cuando cambia la verificación o el estado de un customer. Ver [Resumen de webhooks](/es/api-reference/webhooks/overview) para entrega, headers y verificación de firma.
+
+### Campos de `data`
+
+<ResponseField name="customerId" type="string">El identificador del customer.</ResponseField>
+<ResponseField name="change" type="object">
+  <Expandable title="change">
+    <ResponseField name="kind" type="string">Qué cambió: `kyc`, `kyb` o `customer_status`.</ResponseField>
+    <ResponseField name="status" type="string">El nuevo estado. Para `kyc`/`kyb`: `pending`, `approved`, `rejected`, `not_required`. Para `customer_status`: `active`, `inactive`, `suspended`, `pending_verification`, `waiting_for_data`.</ResponseField>
+    <ResponseField name="statusUpdatedAt" type="string | null">Marca de tiempo ISO 8601 del cambio.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseExample>
+
+```json customer.status.updated
+{
+  "type": "customer.status.updated",
+  "timestamp": "2026-06-23T12:00:00.000Z",
+  "data": {
+    "customerId": "cus_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+    "change": {
+      "kind": "kyc",
+      "status": "approved",
+      "statusUpdatedAt": "2026-06-23T12:00:00.000Z"
+    }
+  }
+}
+```
+
+</ResponseExample>

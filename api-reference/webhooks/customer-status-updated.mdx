@@ -1,0 +1,38 @@
+---
+title: "Customer status updated"
+description: "Sent when a customer's verification or status changes (KYC, KYB, status)."
+---
+
+**Event type:** `customer.status.updated`
+
+Sent when a customer's verification or status changes. See [Webhooks overview](/api-reference/webhooks/overview) for delivery, headers, and signature verification.
+
+### `data` fields
+
+<ResponseField name="customerId" type="string">The customer identifier.</ResponseField>
+<ResponseField name="change" type="object">
+  <Expandable title="change">
+    <ResponseField name="kind" type="string">What changed: `kyc`, `kyb`, or `customer_status`.</ResponseField>
+    <ResponseField name="status" type="string">The new status. For `kyc`/`kyb`: `pending`, `approved`, `rejected`, `not_required`. For `customer_status`: `active`, `inactive`, `suspended`, `pending_verification`, `waiting_for_data`.</ResponseField>
+    <ResponseField name="statusUpdatedAt" type="string | null">ISO 8601 timestamp of the change.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseExample>
+
+```json customer.status.updated
+{
+  "type": "customer.status.updated",
+  "timestamp": "2026-06-23T12:00:00.000Z",
+  "data": {
+    "customerId": "cus_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+    "change": {
+      "kind": "kyc",
+      "status": "approved",
+      "statusUpdatedAt": "2026-06-23T12:00:00.000Z"
+    }
+  }
+}
+```
+
+</ResponseExample>

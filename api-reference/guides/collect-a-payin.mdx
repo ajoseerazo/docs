@@ -22,11 +22,16 @@ rail:
 </Steps>
 
 The examples below use the `fetch` API available in Node.js 18+ and modern
-browsers. Authentication and company context are handled by the API gateway, so
-no auth headers are required.
+browsers. Authenticate each request with your API key via the `api-key` header.
 
 ```ts Shared setup
 const BASE_URL = "https://stablecoin-api.sandbox.getmeru.com";
+const API_KEY = "<api-key>";
+
+const headers = {
+  "Content-Type": "application/json",
+  "api-key": API_KEY,
+};
 
 interface Quote {
   paymentRail: string;
@@ -59,7 +64,7 @@ interface PayinStatus {
 async function getPayinStatus(paymentId: string): Promise<PayinStatus> {
   const res = await fetch(
     `${BASE_URL}/v1/clients/payins/qr-code/${paymentId}/status`,
-    { headers: { "Content-Type": "application/json" } },
+    { headers },
   );
   return res.json();
 }
@@ -78,7 +83,7 @@ Quote how much `BOB` the payer pays for the `USDC` you want to receive.
 ```ts
 const quoteRes = await fetch(`${BASE_URL}/v1/payins/quotes`, {
   method: "POST",
-  headers: { "Content-Type": "application/json" },
+  headers,
   body: JSON.stringify({
     paymentRail: "qr_code",
     amount: 100,
@@ -101,7 +106,7 @@ renderable `qrCode` and the raw `qrPayload`.
 ```ts
 const payinRes = await fetch(`${BASE_URL}/v1/clients/payins/qr-code`, {
   method: "POST",
-  headers: { "Content-Type": "application/json" },
+  headers,
   body: JSON.stringify({
     orderId: "ORD-12346",
     amount: quote.toAmount,
@@ -146,7 +151,7 @@ Quote how much `BRL` the payer pays for the `USDC` you want to receive.
 ```ts
 const quoteRes = await fetch(`${BASE_URL}/v1/payins/quotes`, {
   method: "POST",
-  headers: { "Content-Type": "application/json" },
+  headers,
   body: JSON.stringify({
     paymentRail: "qr_code",
     amount: 100,
@@ -169,7 +174,7 @@ renderable `qrCode` and the PIX copy-and-paste code in `brCode`.
 ```ts
 const payinRes = await fetch(`${BASE_URL}/v1/clients/payins/qr-code`, {
   method: "POST",
-  headers: { "Content-Type": "application/json" },
+  headers,
   body: JSON.stringify({
     orderId: "ORD-12345",
     amount: quote.toAmount,

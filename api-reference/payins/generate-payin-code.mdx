@@ -1,0 +1,166 @@
+---
+title: "Generate a Payin Code"
+api: "POST https://stablecoin-api.sandbox.getmeru.com/v1/clients/payins/qr-code"
+description: "Generates a payin code to collect funds from a payer. The code type is selected by currency: BRL returns a PIX copy-and-paste code, BOB returns a QR code, and any other currency returns a default QR."
+---
+
+The response always includes a renderable `qrCode` image. Depending on the
+`currency`, additional fields are returned:
+
+- `BRL` &rarr; PIX copy-and-paste code in `brCode`.
+- `BOB` &rarr; QR payload string in `qrPayload`.
+- Any other value (default `USD`) &rarr; default QR with no extra fields.
+
+### Body
+
+<ParamField body="orderId" type="string" required>
+  Merchant's order reference.
+</ParamField>
+
+<ParamField body="amount" type="number" required>
+  Amount to collect, expressed in <code>currency</code>. Must be at least
+  <code>0.01</code>.
+</ParamField>
+
+<ParamField body="currency" type="string" default="USD">
+  Currency code that determines the payin code type: <code>BRL</code> returns a
+  PIX code, <code>BOB</code> returns a QR code, and any other value returns a
+  default QR.
+</ParamField>
+
+<ParamField body="externalId" type="string">
+  Reference used for idempotency. If omitted, it defaults to <code>orderId</code>.
+</ParamField>
+
+<ParamField body="onBehalfOf" type="string">
+  Sub-merchant or payer reference.
+</ParamField>
+
+<ParamField body="taxAmount" type="number">
+  Tax portion included in the amount (if applicable). Must be <code>0</code> or
+  greater.
+</ParamField>
+
+<ParamField body="expireAt" type="string">
+  Expiration timestamp (ISO-8601). Defaults to 30 minutes from creation and may
+  not exceed 24 hours.
+</ParamField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the payin code was generated successfully.
+</ResponseField>
+
+<ResponseField name="paymentId" type="string">
+  The unique payment identifier, formatted as <code>payin_&lt;uuid&gt;</code>.
+  Use it to look up the payin status.
+</ResponseField>
+
+<ResponseField name="qrCode" type="string">
+  The renderable QR image, encoded as a data URL.
+</ResponseField>
+
+<ResponseField name="expireAt" type="string">
+  The ISO-8601 timestamp when the payin code expires.
+</ResponseField>
+
+<ResponseField name="brCode" type="string">
+  The PIX copy-and-paste code. Present when <code>currency</code> is
+  <code>BRL</code>.
+</ResponseField>
+
+<ResponseField name="qrPayload" type="string">
+  The raw QR payload string. Present when a QR code is generated (for example,
+  <code>BOB</code>).
+</ResponseField>
+
+### Examples
+
+The following examples show the three routing variants. Use placeholder values
+only.
+
+<CodeGroup>
+
+```bash BRL (PIX)
+curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/v1/clients/payins/qr-code' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "orderId": "ORD-12345",
+    "amount": 150.00,
+    "currency": "BRL",
+    "externalId": "EXT-10001",
+    "onBehalfOf": "sub_merchant_001",
+    "taxAmount": 5.00,
+    "expireAt": "2026-06-28T12:30:00.000Z"
+}'
+```
+
+```bash BOB (QR)
+curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/v1/clients/payins/qr-code' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "orderId": "ORD-12346",
+    "amount": 200.00,
+    "currency": "BOB",
+    "externalId": "EXT-10002",
+    "onBehalfOf": "sub_merchant_002"
+}'
+```
+
+```bash Default (USD)
+curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/v1/clients/payins/qr-code' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "orderId": "ORD-12347",
+    "amount": 99.99
+}'
+```
+
+</CodeGroup>
+
+<CodeGroup>
+
+```json BRL (PIX)
+{
+  "success": true,
+  "paymentId": "payin_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+  "qrCode": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+  "expireAt": "2026-06-28T12:30:00.000Z",
+  "brCode": "00020126580014br.gov.bcb.pix0136123e4567-e12b-12d1-a456-426655440000520400005303986540515.005802BR5913Merchant Name6009Sao Paulo62070503***6304ABCD"
+}
+```
+
+```json BOB (QR)
+{
+  "success": true,
+  "paymentId": "payin_7af2c1e0-9b34-4c1a-8d22-1f0e9a6b5c44",
+  "qrCode": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+  "expireAt": "2026-06-28T12:30:00.000Z",
+  "qrPayload": "00020101021226330014bo.example.qr01081234567852040000530306854062000.005802BO6304E1F2"
+}
+```
+
+```json Default (USD)
+{
+  "success": true,
+  "paymentId": "payin_c91b8d44-2e7f-4f55-9a01-6d3b2e8f1a90",
+  "qrCode": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+  "expireAt": "2026-06-28T12:30:00.000Z"
+}
+```
+
+</CodeGroup>
+
+### Error Responses
+
+<ResponseExample>
+
+```json 409
+{
+  "success": false,
+  "error": "externalId was already used"
+}
+```
+
+</ResponseExample>

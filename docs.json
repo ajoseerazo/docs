@@ -60,6 +60,10 @@
                 "pages": ["api-reference/authentication"]
               },
               {
+                "group": "Guides",
+                "pages": ["api-reference/guides/collect-a-payin"]
+              },
+              {
                 "group": "Balances",
                 "pages": ["api-reference/balances/balances"]
               },
@@ -80,6 +84,8 @@
               {
                 "group": "Payins",
                 "pages": [
+                  "api-reference/payins/generate-payin-code",
+                  "api-reference/payins/get-payin-status",
                   "api-reference/payins/create-qr-payment",
                   "api-reference/payins/get-payment",
                   "api-reference/payins/create",

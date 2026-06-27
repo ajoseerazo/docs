@@ -1,0 +1,86 @@
+---
+title: "Get Payin Status"
+api: "GET https://stablecoin-api.sandbox.getmeru.com/v1/clients/payins/qr-code/:paymentId/status"
+description: "Returns the current status and validity of a payin code."
+---
+
+### Params
+
+<ParamField path="paymentId" type="string" required>
+  The <code>paymentId</code> returned when generating the payin code.
+</ParamField>
+
+### Response
+
+<ResponseField name="paymentId" type="string">
+  The unique payment identifier.
+</ResponseField>
+
+<ResponseField name="isValid" type="boolean">
+  Whether the payin code is currently valid.
+</ResponseField>
+
+<ResponseField name="isExpired" type="boolean">
+  Whether the payin code is expired.
+</ResponseField>
+
+<ResponseField name="expireAt" type="string">
+  The ISO-8601 timestamp when the payin code expires. May be omitted depending
+  on the state.
+</ResponseField>
+
+<ResponseField name="state" type="string">
+  The current state of the payin. One of: <code>awaiting_funds</code>,
+  <code>in_review</code>, <code>funds_received</code>,
+  <code>payment_submitted</code>, <code>payment_processed</code>,
+  <code>undeliverable</code>, <code>returned</code>, <code>refunded</code>,
+  <code>canceled</code>, <code>error</code>. May be omitted depending on the
+  state.
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --location --request GET 'https://stablecoin-api.sandbox.getmeru.com/v1/clients/payins/qr-code/payin_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1/status' \
+--header 'Content-Type: application/json'
+```
+
+```js Javascript
+const response = await fetch('https://stablecoin-api.sandbox.getmeru.com/v1/clients/payins/qr-code/payin_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1/status', {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+const data = await response.json();
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "paymentId": "payin_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+  "isValid": true,
+  "isExpired": false,
+  "expireAt": "2026-06-28T12:30:00.000Z",
+  "state": "awaiting_funds"
+}
+```
+
+</ResponseExample>
+
+### Error Responses
+
+<ResponseExample>
+
+```json 404
+{
+  "success": false,
+  "error": "Not Found"
+}
+```
+
+</ResponseExample>

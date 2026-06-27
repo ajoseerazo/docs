@@ -1,0 +1,223 @@
+---
+title: "Collect a Payin"
+description: "End-to-end recipes for collecting funds from a payer: quote the rate, generate a payin code, and poll its status. Includes Bolivia (QR) and Brazil (PIX) examples in TypeScript."
+---
+
+Collecting a payment from a payer follows the same three steps regardless of the
+rail:
+
+<Steps>
+  <Step title="Get a quote">
+    Convert the amount you want to receive (for example, USDC) into the local
+    currency the payer will pay in.
+  </Step>
+  <Step title="Generate a payin code">
+    Create the payin and render the returned `qrCode`. For `BRL` you also get a
+    PIX copy-and-paste code (`brCode`); for `BOB` you get a raw QR payload
+    (`qrPayload`).
+  </Step>
+  <Step title="Poll the payin status">
+    Check the payin status until `state` reaches `funds_received`.
+  </Step>
+</Steps>
+
+The examples below use the `fetch` API available in Node.js 18+ and modern
+browsers. Authentication and company context are handled by the API gateway, so
+no auth headers are required.
+
+```ts Shared setup
+const BASE_URL = "https://stablecoin-api.sandbox.getmeru.com";
+
+interface Quote {
+  paymentRail: string;
+  fromCurrency: string;
+  toCurrency: string;
+  fromAmount: number;
+  toAmount: number;
+  rate: number;
+  quotedAt: string;
+  expiresAt: string;
+}
+
+interface Payin {
+  success: boolean;
+  paymentId: string;
+  qrCode: string;
+  expireAt: string;
+  brCode?: string;
+  qrPayload?: string;
+}
+
+interface PayinStatus {
+  paymentId: string;
+  isValid: boolean;
+  isExpired: boolean;
+  expireAt?: string;
+  state?: string;
+}
+
+async function getPayinStatus(paymentId: string): Promise<PayinStatus> {
+  const res = await fetch(
+    `${BASE_URL}/v1/clients/payins/qr-code/${paymentId}/status`,
+    { headers: { "Content-Type": "application/json" } },
+  );
+  return res.json();
+}
+```
+
+<Tabs>
+
+<Tab title="Bolivia (QR)">
+
+<Steps>
+
+<Step title="Get a quote">
+
+Quote how much `BOB` the payer pays for the `USDC` you want to receive.
+
+```ts
+const quoteRes = await fetch(`${BASE_URL}/v1/payins/quotes`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    paymentRail: "qr_code",
+    amount: 100,
+    fromCurrency: "USDC",
+    toCurrency: "BOB",
+  }),
+});
+
+const quote: Quote = await quoteRes.json();
+// quote.toAmount is the amount to charge the payer in BOB.
+```
+
+</Step>
+
+<Step title="Generate the payin code">
+
+Use the quoted `BOB` amount to generate the payin. The response includes a
+renderable `qrCode` and the raw `qrPayload`.
+
+```ts
+const payinRes = await fetch(`${BASE_URL}/v1/clients/payins/qr-code`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    orderId: "ORD-12346",
+    amount: quote.toAmount,
+    currency: "BOB",
+    externalId: "EXT-10002",
+  }),
+});
+
+const payin: Payin = await payinRes.json();
+// Render payin.qrCode (a data URL) as an <img>, or display payin.qrPayload.
+console.log(payin.paymentId, payin.qrPayload);
+```
+
+</Step>
+
+<Step title="Poll the payin status">
+
+Poll until the payer completes the payment (`state === "funds_received"`).
+
+```ts
+const status = await getPayinStatus(payin.paymentId);
+
+if (status.state === "funds_received") {
+  // Funds received — fulfill the order.
+}
+```
+
+</Step>
+
+</Steps>
+
+</Tab>
+
+<Tab title="Brazil (PIX)">
+
+<Steps>
+
+<Step title="Get a quote">
+
+Quote how much `BRL` the payer pays for the `USDC` you want to receive.
+
+```ts
+const quoteRes = await fetch(`${BASE_URL}/v1/payins/quotes`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    paymentRail: "qr_code",
+    amount: 100,
+    fromCurrency: "USDC",
+    toCurrency: "BRL",
+  }),
+});
+
+const quote: Quote = await quoteRes.json();
+// quote.toAmount is the amount to charge the payer in BRL.
+```
+
+</Step>
+
+<Step title="Generate the payin code">
+
+Use the quoted `BRL` amount to generate the payin. The response includes a
+renderable `qrCode` and the PIX copy-and-paste code in `brCode`.
+
+```ts
+const payinRes = await fetch(`${BASE_URL}/v1/clients/payins/qr-code`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    orderId: "ORD-12345",
+    amount: quote.toAmount,
+    currency: "BRL",
+    externalId: "EXT-10001",
+  }),
+});
+
+const payin: Payin = await payinRes.json();
+// Render payin.qrCode (a data URL), or show payin.brCode for copy-and-paste.
+console.log(payin.paymentId, payin.brCode);
+```
+
+</Step>
+
+<Step title="Poll the payin status">
+
+Poll until the payer completes the payment (`state === "funds_received"`).
+
+```ts
+const status = await getPayinStatus(payin.paymentId);
+
+if (status.state === "funds_received") {
+  // Funds received — fulfill the order.
+}
+```
+
+</Step>
+
+</Steps>
+
+</Tab>
+
+</Tabs>
+
+<Note>
+  A payin code expires after the `expireAt` timestamp (30 minutes by default,
+  24 hours maximum). Generate a new payin code if the previous one expires
+  before the payer pays.
+</Note>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Generate a Payin Code" icon="qrcode" href="/api-reference/payins/generate-payin-code">
+    Full request and response reference for creating a payin.
+  </Card>
+  <Card title="Get Payin Status" icon="magnifying-glass" href="/api-reference/payins/get-payin-status">
+    Look up the validity and state of a payin.
+  </Card>
+</CardGroup>

@@ -3,6 +3,27 @@ title: "Changelog"
 description: "Updates and changes to the Meru API and documentation"
 ---
 
+<Update label="2026-06-28">
+  ## Meru Checkout
+
+  New **Checkout** section documenting the hosted crypto payment page: an overview,
+  a quickstart, the `POST /v1/checkouts` and `GET /checkouts/{id}` references, the
+  crypto-exchanges and QR Bolivia payment methods, and the iframe embed with
+  `postMessage` events. Also adds a **React SDK** guide for
+  `@meru.app/checkout-react` (`<MeruCheckout>`, `redirectToCheckout`, and the
+  `useCheckoutStatus` hook).
+</Update>
+
+<Update label="2026-06-28">
+  ## Payin codes (PIX & QR)
+
+  New reference pages for generating a payin code via `POST /v1/payins/qr-code` —
+  routed by currency to a PIX copy-and-paste code (`BRL`), a QR code (`BOB`), or a
+  default QR — and for checking its status via
+  `GET /v1/payins/qr-code/{paymentId}/status`. Adds a TypeScript "Collect a Payin"
+  guide covering the quote &rarr; generate &rarr; status flow for Bolivia and Brazil.
+</Update>
+
 <Update label="2026-06-24">
   ## Webhooks reference
 

@@ -1,6 +1,6 @@
 ---
 title: "Generate a Payin Code"
-api: "POST https://stablecoin-api.sandbox.getmeru.com/v1/clients/payins/qr-code"
+api: "POST https://stablecoin-api.sandbox.getmeru.com/v1/payins/qr-code"
 description: "Generates a payin code to collect funds from a payer. The code type is selected by currency: BRL returns a PIX copy-and-paste code, BOB returns a QR code, and any other currency returns a default QR."
 ---
 
@@ -83,7 +83,7 @@ only.
 <CodeGroup>
 
 ```bash BRL (PIX)
-curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/v1/clients/payins/qr-code' \
+curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/v1/payins/qr-code' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "orderId": "ORD-12345",
@@ -97,7 +97,7 @@ curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/v1/cl
 ```
 
 ```bash BOB (QR)
-curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/v1/clients/payins/qr-code' \
+curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/v1/payins/qr-code' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "orderId": "ORD-12346",
@@ -109,7 +109,7 @@ curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/v1/cl
 ```
 
 ```bash Default (USD)
-curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/v1/clients/payins/qr-code' \
+curl --location --request POST 'https://stablecoin-api.sandbox.getmeru.com/v1/payins/qr-code' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "orderId": "ORD-12347",

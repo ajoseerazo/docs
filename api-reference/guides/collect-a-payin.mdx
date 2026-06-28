@@ -63,7 +63,7 @@ interface PayinStatus {
 
 async function getPayinStatus(paymentId: string): Promise<PayinStatus> {
   const res = await fetch(
-    `${BASE_URL}/v1/clients/payins/qr-code/${paymentId}/status`,
+    `${BASE_URL}/v1/payins/qr-code/${paymentId}/status`,
     { headers },
   );
   return res.json();
@@ -104,7 +104,7 @@ Use the quoted `BOB` amount to generate the payin. The response includes a
 renderable `qrCode` and the raw `qrPayload`.
 
 ```ts
-const payinRes = await fetch(`${BASE_URL}/v1/clients/payins/qr-code`, {
+const payinRes = await fetch(`${BASE_URL}/v1/payins/qr-code`, {
   method: "POST",
   headers,
   body: JSON.stringify({
@@ -172,7 +172,7 @@ Use the quoted `BRL` amount to generate the payin. The response includes a
 renderable `qrCode` and the PIX copy-and-paste code in `brCode`.
 
 ```ts
-const payinRes = await fetch(`${BASE_URL}/v1/clients/payins/qr-code`, {
+const payinRes = await fetch(`${BASE_URL}/v1/payins/qr-code`, {
   method: "POST",
   headers,
   body: JSON.stringify({

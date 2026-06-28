@@ -106,7 +106,8 @@
                   "api-reference/checkout/create-session",
                   "api-reference/checkout/payment-status",
                   "api-reference/checkout/payment-methods",
-                  "api-reference/checkout/embed"
+                  "api-reference/checkout/embed",
+                  "api-reference/checkout/react-sdk"
                 ]
               },
               {

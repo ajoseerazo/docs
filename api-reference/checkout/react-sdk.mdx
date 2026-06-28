@@ -1,0 +1,376 @@
+---
+title: "Checkout React SDK"
+sidebarTitle: "React SDK"
+description: "@meru.app/checkout-react embeds Meru Checkout in your React app. Create a session on your backend, then embed it in a modal/inline iframe or redirect to it by id or url."
+---
+
+`@meru.app/checkout-react` embeds Meru Checkout in your React app. Your backend
+creates a checkout session; the SDK embeds or redirects to it by `id` or `url`.
+
+<Warning>
+  **The secret key (`sk_live_…`) is server-side only.** The React SDK never sees
+  it. Your backend creates the session with the secret key; the SDK only embeds or
+  redirects to the resulting session `id` or `url`.
+</Warning>
+
+## Install
+
+```bash
+npm install @meru.app/checkout-react
+```
+
+<Note>
+  `react >= 17` is a peer dependency.
+</Note>
+
+## Prerequisite: create a session on your backend
+
+Create the session server-side and pass the returned `id` (or `url`) to your
+frontend. See [Create a session](/api-reference/checkout/create-session) for the
+full reference.
+
+```ts Server-side (Node.js)
+const res = await fetch("https://checkout-api.meru.com/v1/checkouts", {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${process.env.MERU_CHECKOUT_SECRET_KEY}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    amountFiat: 50,
+    reference: "order_123",
+    paymentMethod: "qr-bolivia",
+  }),
+});
+
+const { id, url } = await res.json();
+// Send `id` (or `url`) to your frontend.
+```
+
+## Embed the checkout
+
+The `<MeruCheckout>` component renders the hosted checkout as a modal overlay or an
+inline iframe. Alternatively, `redirectToCheckout` sends the customer to the hosted
+page full-screen. The SDK sets the iframe
+`allow="payment; clipboard-write; clipboard-read"` automatically and verifies the
+message origin.
+
+<Tabs>
+
+<Tab title="Modal">
+
+The modal renders a fixed overlay with a close button. With `autoClose` (default
+`true`), it closes ~1.5s after `success` and immediately on `cancel`.
+
+```tsx
+import { useState } from "react";
+import { MeruCheckout, type CheckoutMessage } from "@meru.app/checkout-react";
+
+export function PayButton({ checkoutId }: { checkoutId: string }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button onClick={() => setOpen(true)}>Pay $50.00</button>
+
+      {open && (
+        <MeruCheckout
+          checkoutId={checkoutId}
+          display="modal"
+          onSuccess={(m: CheckoutMessage) => {
+            // UX only — confirm server-side before fulfilling.
+            console.log("paid", m.checkoutId, m.txHash);
+          }}
+          onCancel={() => console.log("canceled")}
+          onClose={() => setOpen(false)}
+        />
+      )}
+    </>
+  );
+}
+```
+
+</Tab>
+
+<Tab title="Inline">
+
+Inline mode renders just the iframe, sized with `height`.
+
+```tsx
+import { MeruCheckout } from "@meru.app/checkout-react";
+
+export function CheckoutPanel({ checkoutId }: { checkoutId: string }) {
+  return (
+    <MeruCheckout
+      checkoutId={checkoutId}
+      display="inline"
+      height={680}
+      onSuccess={(m) => console.log("paid", m.checkoutId)}
+    />
+  );
+}
+```
+
+</Tab>
+
+<Tab title="Redirect">
+
+`redirectToCheckout` performs a full-page redirect to the hosted checkout. Pass a
+`checkoutId` or a full `url`.
+
+```tsx
+import { redirectToCheckout } from "@meru.app/checkout-react";
+
+export function PayButton({ checkoutId }: { checkoutId: string }) {
+  return (
+    <button onClick={() => redirectToCheckout({ checkoutId })}>
+      Pay $50.00
+    </button>
+  );
+}
+```
+
+</Tab>
+
+</Tabs>
+
+<Warning>
+  The client `success` event is for UX only. Always confirm the payment
+  server-side — via [`GET /checkouts/{id}`](/api-reference/checkout/payment-status)
+  or your own reconciliation — before fulfilling anything of value.
+</Warning>
+
+## Track status (optional)
+
+`useCheckoutStatus` polls the session and stops at a terminal status. It's handy
+for inline flows where you want to reflect progress in your own UI.
+
+```tsx
+import { useCheckoutStatus } from "@meru.app/checkout-react";
+
+export function OrderStatus({ checkoutId }: { checkoutId: string }) {
+  const { status, checkout, error, isSettled } = useCheckoutStatus(checkoutId);
+
+  if (error) return <p>Couldn't load status.</p>;
+
+  return (
+    <p>
+      Status: {status ?? "loading…"}
+      {isSettled ? " (final)" : ""}
+    </p>
+  );
+}
+```
+
+<Note>
+  This hook reflects status for your UI. It is not a substitute for server-side
+  confirmation before fulfillment.
+</Note>
+
+## `<MeruCheckout>` props
+
+<ParamField path="checkoutId" type="string">
+  Session id from your backend. Provide this **or** `url`.
+</ParamField>
+
+<ParamField path="url" type="string">
+  Full session URL. Alternative to `checkoutId`.
+</ParamField>
+
+<ParamField path="baseUrl" type="string" default="https://checkout.meru.com">
+  Hosted checkout origin. Override for sandbox/self-hosted environments.
+</ParamField>
+
+<ParamField path="display" type='"modal" | "inline"' default="modal">
+  Render as a modal overlay or an inline iframe.
+</ParamField>
+
+<ParamField path="height" type="number | string" default="640">
+  Inline iframe height.
+</ParamField>
+
+<ParamField path="autoClose" type="boolean" default="true">
+  Close the modal automatically on success (~1.5s) or cancel (immediately).
+</ParamField>
+
+<ParamField path="onReady" type="(m: CheckoutMessage) => void">
+  Fired when the embedded checkout has loaded.
+</ParamField>
+
+<ParamField path="onProcessing" type="(m: CheckoutMessage) => void">
+  Fired when the customer starts paying.
+</ParamField>
+
+<ParamField path="onSuccess" type="(m: CheckoutMessage) => void">
+  Fired when the checkout reports a successful payment (client-side).
+</ParamField>
+
+<ParamField path="onFailed" type="(m: CheckoutMessage) => void">
+  Fired when the payment fails.
+</ParamField>
+
+<ParamField path="onCancel" type="(m: CheckoutMessage) => void">
+  Fired when the customer cancels.
+</ParamField>
+
+<ParamField path="onMessage" type="(m: CheckoutMessage) => void">
+  Catch-all for every checkout message.
+</ParamField>
+
+<ParamField path="onClose" type="() => void">
+  Fired when the modal closes (manual dismiss or auto-close).
+</ParamField>
+
+<ParamField path="title" type="string">
+  Accessible title for the modal/iframe.
+</ParamField>
+
+<ParamField path="className" type="string">
+  Class name applied to the container.
+</ParamField>
+
+<ParamField path="style" type="React.CSSProperties">
+  Inline styles applied to the container.
+</ParamField>
+
+## `CheckoutMessage`
+
+Every event handler receives a `CheckoutMessage`:
+
+<ResponseField name="source" type='"meru-checkout"'>
+  Always `"meru-checkout"`. Verify this before trusting a message.
+</ResponseField>
+
+<ResponseField name="type" type='"ready" | "processing" | "success" | "failed" | "cancel"'>
+  The event type.
+</ResponseField>
+
+<ResponseField name="checkoutId" type="string">
+  The session id.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  The session status at the time of the event.
+</ResponseField>
+
+<ResponseField name="reference" type="string | null">
+  Your order reference, echoed back.
+</ResponseField>
+
+<ResponseField name="amount" type="string">
+  The amount, when available.
+</ResponseField>
+
+<ResponseField name="currency" type="string">
+  The currency, when available.
+</ResponseField>
+
+<ResponseField name="txHash" type="string | null">
+  On-chain transaction hash for crypto payments, when available.
+</ResponseField>
+
+## `useCheckoutStatus(checkoutId?, options?)`
+
+### Options
+
+<ParamField path="apiUrl" type="string" default="https://checkout-api.meru.com">
+  Checkout API origin to poll. Override for sandbox/self-hosted environments.
+</ParamField>
+
+<ParamField path="intervalMs" type="number" default="5000">
+  Polling interval in milliseconds.
+</ParamField>
+
+<ParamField path="enabled" type="boolean" default="true">
+  Whether polling is active. Set `false` to pause.
+</ParamField>
+
+### Returns
+
+<ResponseField name="status" type="string">
+  The latest session status, or `undefined` until first load.
+</ResponseField>
+
+<ResponseField name="checkout" type="Checkout">
+  The full session object from `GET /checkouts/{id}`.
+</ResponseField>
+
+<ResponseField name="error" type="Error | null">
+  The last polling error, if any.
+</ResponseField>
+
+<ResponseField name="isSettled" type="boolean">
+  `true` once `status` reaches a terminal value.
+</ResponseField>
+
+### Statuses
+
+`created` · `pending` · `processing` · `succeeded` · `failed` · `expired`
+
+`succeeded`, `failed`, and `expired` are terminal — polling stops once reached. See
+[Payment status](/api-reference/checkout/payment-status) for the full lifecycle.
+
+## Helpers & exports
+
+<ResponseField name="buildSessionUrl" type="(opts: SessionUrlOptions) => string">
+  Builds a hosted session URL from a `checkoutId`/`url` and optional `baseUrl`.
+</ResponseField>
+
+<ResponseField name="originOf" type="(url: string) => string">
+  Returns the origin of a URL — useful for `postMessage` origin checks.
+</ResponseField>
+
+<ResponseField name="DEFAULT_CHECKOUT_URL" type="string">
+  `"https://checkout.meru.com"` — the default component `baseUrl`.
+</ResponseField>
+
+<ResponseField name="DEFAULT_API_URL" type="string">
+  `"https://checkout-api.meru.com"` — the default hook `apiUrl`.
+</ResponseField>
+
+Exported types: `MeruCheckoutProps`, `Checkout`, `CheckoutStatus`,
+`CheckoutMessage`, `CheckoutEventType`, `SessionUrlOptions`,
+`UseCheckoutStatusOptions`.
+
+## Sandbox / self-host
+
+Point the SDK at a different environment by overriding `baseUrl` on the component
+and `redirectToCheckout`, and `apiUrl` on the status hook.
+
+<CodeGroup>
+
+```tsx Component
+<MeruCheckout
+  checkoutId={checkoutId}
+  baseUrl="https://checkout.sandbox.meru.com"
+/>
+```
+
+```tsx Redirect
+redirectToCheckout({
+  checkoutId,
+  baseUrl: "https://checkout.sandbox.meru.com",
+});
+```
+
+```tsx Status hook
+useCheckoutStatus(checkoutId, {
+  apiUrl: "https://checkout-api.sandbox.meru.com",
+});
+```
+
+</CodeGroup>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Create a session" icon="plus" href="/api-reference/checkout/create-session">
+    Create the session on your backend with your secret key.
+  </Card>
+  <Card title="Payment status" icon="magnifying-glass" href="/api-reference/checkout/payment-status">
+    Confirm payments server-side by polling.
+  </Card>
+  <Card title="Embed (iframe)" icon="code" href="/api-reference/checkout/embed">
+    The underlying iframe + postMessage protocol.
+  </Card>
+</CardGroup>

@@ -1,0 +1,110 @@
+---
+title: "Embed Checkout (iframe)"
+sidebarTitle: "Embed (iframe)"
+description: "Embed a checkout session in an iframe. In iframe mode the checkout renders success/canceled in place and posts events to the parent window instead of redirecting."
+---
+
+Instead of redirecting, you can embed a checkout session in an `iframe` on your own
+page. In iframe mode the checkout does **not** redirect — it renders
+success/canceled in place and posts messages to the parent window.
+
+<Steps>
+
+<Step title="Create a session">
+
+Create a session from your backend exactly as in the
+[Quickstart](/api-reference/checkout/quickstart), and keep the returned `id`.
+
+</Step>
+
+<Step title="Embed the session URL">
+
+Render an iframe pointing at the session URL with `iframe=true` and your
+`parentOrigin` appended as query params.
+
+```html
+<iframe
+  src="https://checkout.meru.com/c/cmqx8r2f00012abcde34fghij?iframe=true&parentOrigin=https://your-site.com"
+  allow="payment; clipboard-write; clipboard-read"
+  style="width: 100%; height: 700px; border: 0;"
+></iframe>
+```
+
+<Note>
+  The `allow="payment; clipboard-write; clipboard-read"` attribute is required so
+  the embedded checkout can request payment and let the customer copy the QR
+  payload or address.
+</Note>
+
+</Step>
+
+<Step title="Listen for postMessage events">
+
+The checkout posts messages to the parent window as the payment progresses.
+Add the listener below to your page.
+
+```js
+window.addEventListener("message", (e) => {
+  if (e.origin !== "https://checkout.meru.com") return;     // verify origin
+  const m = e.data;
+  if (!m || m.source !== "meru-checkout") return;
+  if (m.type === "success") { /* mark order paid via your backend, then close iframe */ }
+  if (m.type === "cancel")  { /* close the iframe */ }
+});
+```
+
+</Step>
+
+<Step title="Confirm server-side">
+
+<Warning>
+  The `success` message is a **client signal**. Confirm the real payment
+  server-side via [`GET /checkouts/{id}`](/api-reference/checkout/payment-status)
+  before fulfilling anything of value.
+</Warning>
+
+</Step>
+
+</Steps>
+
+## Message shape
+
+Each message posted to the parent window has this shape:
+
+```ts
+{
+  source: "meru-checkout";
+  type: "ready" | "processing" | "success" | "failed" | "cancel";
+  checkoutId: string;
+  status: string;
+  reference: string | null;
+  amount: string | undefined;
+  currency: string | undefined;
+  txHash: string | null;
+}
+```
+
+| `type`       | When it fires                                          |
+| ------------ | ------------------------------------------------------ |
+| `ready`      | The embedded checkout has loaded and is interactive.   |
+| `processing` | The customer started paying; transfer is in progress.  |
+| `success`    | The checkout observed a successful payment (client-side). |
+| `failed`     | The payment failed.                                    |
+| `cancel`     | The customer canceled.                                 |
+
+<Warning>
+  Always check `e.origin === "https://checkout.meru.com"` and
+  `e.data.source === "meru-checkout"` before trusting a message, to avoid acting on
+  spoofed events from other frames.
+</Warning>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="bolt" href="/api-reference/checkout/quickstart">
+    Create a session and redirect, end to end.
+  </Card>
+  <Card title="Payment status" icon="magnifying-glass" href="/api-reference/checkout/payment-status">
+    Confirm payments server-side by polling.
+  </Card>
+</CardGroup>

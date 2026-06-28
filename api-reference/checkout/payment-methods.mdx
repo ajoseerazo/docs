@@ -1,0 +1,98 @@
+---
+title: "Checkout Payment Methods"
+sidebarTitle: "Payment methods"
+description: "Meru Checkout supports paying from crypto exchanges and wallets, and paying in local currency via QR Bolivia. Force one method or let the customer choose."
+---
+
+Meru Checkout supports two payment methods. Set `paymentMethod` when
+[creating a session](/api-reference/checkout/create-session) to force one, or omit
+it to let the customer choose.
+
+<Tabs>
+
+<Tab title="Crypto exchanges & wallets">
+
+**`paymentMethod: "crypto-exchanges"`**
+
+The customer pays from an exchange or wallet they already use — Binance, Coinbase,
+MetaMask, and many others. Funds settle as **USDC/USDT on Polygon** to the
+merchant's address. This method opens automatically when selected.
+
+- Set `amountFiat` — it is **required** for this method.
+- Use `token` to choose the stablecoin to receive (`USDC` or `USDT`, default
+  `USDC`).
+- Once settled, the session exposes `chain`, `token`, and `txHash`.
+
+```bash cURL
+curl -X POST https://checkout-api.meru.com/v1/checkouts \
+  -H "Authorization: Bearer sk_live_<your-checkout-secret-key>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amountFiat": 50,
+    "fiatCurrency": "USD",
+    "paymentMethod": "crypto-exchanges",
+    "token": "USDC",
+    "reference": "order_123"
+  }'
+```
+
+</Tab>
+
+<Tab title="QR Bolivia">
+
+**`paymentMethod: "qr-bolivia"`**
+
+The customer pays in local currency (Bs/BOB) by scanning a QR with their bank app.
+The checkout page captures the amount (if not preset) plus the customer's name,
+email, and document, then shows the QR, the local amount, and the USD&rarr;BOB rate.
+
+- `amountFiat` is **optional** — the QR form can capture it from the customer.
+- Once a QR is generated, the session's [`qr` object](/api-reference/checkout/payment-status#the-qr-object)
+  is populated with `qrCode`, `qrPayload`, `localAmount`, `localCurrency`, and
+  `rate`.
+
+```bash cURL
+curl -X POST https://checkout-api.meru.com/v1/checkouts \
+  -H "Authorization: Bearer sk_live_<your-checkout-secret-key>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "paymentMethod": "qr-bolivia",
+    "fiatCurrency": "USD",
+    "reference": "order_123"
+  }'
+```
+
+</Tab>
+
+</Tabs>
+
+## Letting the customer choose
+
+If you omit `paymentMethod`, the checkout shows a **method chooser**. Only the
+methods your account has enabled and configured appear, and the session's
+`availableMethods` array reflects them.
+
+```js Node.js
+const res = await fetch("https://checkout-api.meru.com/v1/checkouts", {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${process.env.MERU_CHECKOUT_SECRET_KEY}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    amountFiat: 50,
+    fiatCurrency: "USD",
+    reference: "order_123",
+    // no paymentMethod -> customer chooses among availableMethods
+  }),
+});
+
+const session = await res.json();
+// session.availableMethods -> e.g. ["mesh", "qr_bolivia"]
+```
+
+<Note>
+  The API accepts `crypto-exchanges` and `qr-bolivia` as input values. On the
+  session object these are reported as `mesh` (crypto exchanges) and `qr_bolivia`
+  respectively, and `availableMethods` uses those same values.
+</Note>

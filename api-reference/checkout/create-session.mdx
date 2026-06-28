@@ -1,0 +1,239 @@
+---
+title: "Create a Checkout Session"
+sidebarTitle: "Create a session"
+description: "POST /v1/checkouts — create a hosted checkout session and receive a url to redirect the customer to."
+---
+
+```
+POST https://checkout-api.meru.com/v1/checkouts
+```
+
+Creates a checkout session and returns the session object, including the hosted
+`url` you redirect the customer to.
+
+## Authentication
+
+Authorize the request with your **Checkout API secret key** as a Bearer token.
+
+```
+Authorization: Bearer sk_live_...
+Content-Type: application/json
+```
+
+<Warning>
+  Your `sk_live_` key is **server-side only**. Never expose it in client-side code.
+  This endpoint must be called from your backend.
+</Warning>
+
+<Note>
+  The Checkout API key is separate from the main Meru `api-key`. See
+  [Overview](/api-reference/checkout/overview#authentication-and-security-model).
+</Note>
+
+## Body
+
+All fields are optional unless noted.
+
+<ParamField body="amountFiat" type="number">
+  Amount in fiat. Required for `crypto-exchanges`; optional for `qr-bolivia`
+  (the QR form can capture it from the customer).
+</ParamField>
+
+<ParamField body="fiatCurrency" type="string" default="USD">
+  ISO currency code for `amountFiat`.
+</ParamField>
+
+<ParamField body="paymentMethod" type="string">
+  Force a payment method: `crypto-exchanges` or `qr-bolivia`. Omit to let the
+  customer choose among the methods your account has enabled.
+</ParamField>
+
+<ParamField body="token" type="string" default="USDC">
+  Stablecoin to receive for crypto payments: `USDC` or `USDT`.
+</ParamField>
+
+<ParamField body="description" type="string">
+  Description shown to the customer on the checkout page.
+</ParamField>
+
+<ParamField body="reference" type="string">
+  Your order identifier. Echoed back on the session object.
+</ParamField>
+
+<ParamField body="successUrl" type="string">
+  URL to redirect the customer to after a confirmed payment.
+</ParamField>
+
+<ParamField body="cancelUrl" type="string">
+  URL to redirect/return the customer to on cancel.
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Arbitrary key/value pairs. Echoed back when you read the session.
+</ParamField>
+
+## Response
+
+Returns `201 Created` with the session object.
+
+<ResponseField name="id" type="string">
+  The session identifier. Store it with your order.
+</ResponseField>
+
+<ResponseField name="url" type="string">
+  The hosted checkout URL. Redirect the customer here.
+</ResponseField>
+
+<ResponseField name="reference" type="string">
+  Your order identifier, echoed back.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  The description shown on the checkout.
+</ResponseField>
+
+<ResponseField name="amountFiat" type="string">
+  The fiat amount as a string, or `null` if not set.
+</ResponseField>
+
+<ResponseField name="fiatCurrency" type="string">
+  ISO currency code for `amountFiat`.
+</ResponseField>
+
+<ResponseField name="paymentMethod" type="string">
+  The selected method (`mesh` for crypto exchanges, `qr_bolivia`), or `null`
+  when the customer still has to choose.
+</ResponseField>
+
+<ResponseField name="availableMethods" type="string[]">
+  Methods offered for this session, for example `["mesh", "qr_bolivia"]`.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  The session status. Starts at `created`. See
+  [Payment status](/api-reference/checkout/payment-status) for the full
+  lifecycle.
+</ResponseField>
+
+<ResponseField name="chain" type="string">
+  Settlement chain for crypto payments. `null` until known.
+</ResponseField>
+
+<ResponseField name="token" type="string">
+  Stablecoin received (`USDC`/`USDT`). `null` until known.
+</ResponseField>
+
+<ResponseField name="txHash" type="string">
+  On-chain transaction hash for crypto payments. `null` until settled.
+</ResponseField>
+
+<ResponseField name="successUrl" type="string">
+  The redirect URL on success, or `null`.
+</ResponseField>
+
+<ResponseField name="cancelUrl" type="string">
+  The redirect URL on cancel, or `null`.
+</ResponseField>
+
+<ResponseField name="metadata" type="object">
+  The metadata you sent, or `null`.
+</ResponseField>
+
+<ResponseField name="qr" type="object">
+  QR payment details. `null` until a QR is generated (QR Bolivia). See the
+  [`qr` object](/api-reference/checkout/payment-status#the-qr-object).
+</ResponseField>
+
+<ResponseField name="customer" type="object">
+  Customer details captured on the checkout page.
+  <Expandable title="properties">
+    <ResponseField name="name" type="string">Customer name, or `null`.</ResponseField>
+    <ResponseField name="email" type="string">Customer email, or `null`.</ResponseField>
+    <ResponseField name="document" type="string">Customer ID document, or `null`.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  ISO-8601 timestamp when the session was created.
+</ResponseField>
+
+<ResponseField name="expiresAt" type="string">
+  ISO-8601 timestamp when the session expires.
+</ResponseField>
+
+<ResponseField name="paidAt" type="string">
+  ISO-8601 timestamp when payment succeeded, or `null`.
+</ResponseField>
+
+## Examples
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://checkout-api.meru.com/v1/checkouts \
+  -H "Authorization: Bearer sk_live_<your-checkout-secret-key>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amountFiat": 50,
+    "fiatCurrency": "USD",
+    "paymentMethod": "qr-bolivia",
+    "description": "Pro plan",
+    "reference": "order_123",
+    "successUrl": "https://your-site.com/success",
+    "cancelUrl": "https://your-site.com/cancel",
+    "metadata": { "orderId": "order_123", "plan": "pro" }
+  }'
+```
+
+```js Node.js
+const res = await fetch("https://checkout-api.meru.com/v1/checkouts", {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${process.env.MERU_CHECKOUT_SECRET_KEY}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    amountFiat: 50,
+    fiatCurrency: "USD",
+    paymentMethod: "qr-bolivia",
+    description: "Pro plan",
+    reference: "order_123",
+    successUrl: "https://your-site.com/success",
+    cancelUrl: "https://your-site.com/cancel",
+    metadata: { orderId: "order_123", plan: "pro" },
+  }),
+});
+
+const session = await res.json();
+```
+
+</CodeGroup>
+
+<ResponseExample>
+
+```json 201
+{
+  "id": "cmqx8r2f00012abcde34fghij",
+  "url": "https://checkout.meru.com/c/cmqx8r2f00012abcde34fghij",
+  "reference": "order_123",
+  "description": "Pro plan",
+  "amountFiat": "50",
+  "fiatCurrency": "USD",
+  "paymentMethod": "qr_bolivia",
+  "availableMethods": ["mesh", "qr_bolivia"],
+  "status": "created",
+  "chain": null,
+  "token": null,
+  "txHash": null,
+  "successUrl": "https://your-site.com/success",
+  "cancelUrl": "https://your-site.com/cancel",
+  "metadata": { "orderId": "order_123", "plan": "pro" },
+  "qr": null,
+  "customer": { "name": null, "email": null, "document": null },
+  "createdAt": "2026-06-28T12:00:00.000Z",
+  "expiresAt": "2026-06-28T12:30:00.000Z",
+  "paidAt": null
+}
+```
+
+</ResponseExample>

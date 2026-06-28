@@ -1,0 +1,97 @@
+---
+title: "Checkout Overview"
+sidebarTitle: "Overview"
+description: "Meru Checkout is a hosted crypto payment page. Create a checkout session from your backend, send the customer to the hosted page, and reconcile the result by polling the session status."
+---
+
+Meru Checkout lets you collect crypto and local-currency payments without building
+a payment UI. Your backend creates a **checkout session** and receives a hosted
+`url`. You send the customer to that page, they pay, and you reconcile the result
+by polling the session status.
+
+## Payment methods
+
+<CardGroup cols={2}>
+  <Card title="Crypto exchanges & wallets" icon="bitcoin-sign">
+    The customer pays from Binance, Coinbase, MetaMask, and many other
+    exchanges and wallets. Funds settle as USDC/USDT on Polygon.
+  </Card>
+  <Card title="QR Bolivia" icon="qrcode">
+    The customer pays in local currency (Bs/BOB) by scanning a QR with their
+    bank app. The page shows the local amount and the USD&rarr;BOB rate.
+  </Card>
+</CardGroup>
+
+If you omit `paymentMethod` when creating the session, the checkout shows a method
+chooser with whichever methods your account has enabled. See
+[Payment methods](/api-reference/checkout/payment-methods) for details.
+
+## Integration flows
+
+<CardGroup cols={2}>
+  <Card title="Hosted redirect" icon="arrow-up-right-from-square" href="/api-reference/checkout/quickstart">
+    Redirect the customer to the hosted checkout page, then return them to your
+    `successUrl`. The simplest integration.
+  </Card>
+  <Card title="Embedded (iframe)" icon="window-maximize" href="/api-reference/checkout/embed">
+    Render the checkout inside your own page. The checkout posts events to the
+    parent window instead of redirecting.
+  </Card>
+</CardGroup>
+
+## Authentication and security model
+
+Meru Checkout uses a **Checkout API secret key** to authorize requests from your
+backend.
+
+<Note>
+  The Checkout API key is **separate** from the main Meru API key. Checkout uses a
+  `Bearer` token (`Authorization: Bearer sk_live_...`) against
+  `https://checkout-api.meru.com`, whereas the rest of the Meru API uses the
+  `api-key` header. Use the right key for each API.
+</Note>
+
+The secret key has the format `sk_live_...` and is sent as:
+
+```
+Authorization: Bearer sk_live_...
+```
+
+<Warning>
+  Your `sk_live_` key is **server-side only**. Never expose it in the browser,
+  client-side JavaScript, mobile apps, or a public repository. Anyone with this key
+  can create checkout sessions on your behalf.
+</Warning>
+
+The customer only ever receives the opaque session `url`.
+
+<Note>
+  The session id embedded in the checkout URL (for example,
+  `https://checkout.meru.com/c/cmqx...`) is **opaque and pay-only**. It cannot be
+  used to authenticate API calls or read your account — it only lets the holder pay
+  that one session. Reading a session via `GET /checkouts/{id}` is intentionally
+  public so your backend can poll status without exposing your secret key.
+</Note>
+
+## Reconciliation
+
+Webhooks are not yet available. Reconcile payments by polling
+[`GET /checkouts/{id}`](/api-reference/checkout/payment-status) from your backend
+and treating `succeeded` as paid.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="bolt" href="/api-reference/checkout/quickstart">
+    Create a session and redirect a customer, end to end.
+  </Card>
+  <Card title="Create a session" icon="plus" href="/api-reference/checkout/create-session">
+    Full reference for `POST /v1/checkouts`.
+  </Card>
+  <Card title="Payment status" icon="magnifying-glass" href="/api-reference/checkout/payment-status">
+    Poll `GET /checkouts/{id}` and read the status lifecycle.
+  </Card>
+  <Card title="Embed (iframe)" icon="code" href="/api-reference/checkout/embed">
+    Embed the checkout and handle `postMessage` events.
+  </Card>
+</CardGroup>

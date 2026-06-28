@@ -1,0 +1,172 @@
+---
+title: "Checkout Quickstart"
+sidebarTitle: "Quickstart"
+description: "Create a checkout session from your backend, redirect the customer to the hosted page, and confirm the payment by polling the session status."
+---
+
+This guide walks through the hosted redirect flow end to end. You'll need your
+**Checkout API secret key** (`sk_live_...`).
+
+<Warning>
+  Keep your `sk_live_` key **server-side only**. The steps below run on your
+  backend; the customer only ever sees the opaque session `url`.
+</Warning>
+
+<Steps>
+
+<Step title="Create a checkout session">
+
+From your backend, call `POST /v1/checkouts` with your secret key. The response
+includes a `url` to send the customer to.
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST https://checkout-api.meru.com/v1/checkouts \
+  -H "Authorization: Bearer sk_live_<your-checkout-secret-key>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amountFiat": 50,
+    "fiatCurrency": "USD",
+    "description": "Pro plan",
+    "reference": "order_123",
+    "successUrl": "https://your-site.com/success",
+    "cancelUrl": "https://your-site.com/cancel"
+  }'
+```
+
+```js Node.js
+// Keep your secret key in an environment variable, never in client code.
+const res = await fetch("https://checkout-api.meru.com/v1/checkouts", {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${process.env.MERU_CHECKOUT_SECRET_KEY}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    amountFiat: 50,
+    fiatCurrency: "USD",
+    description: "Pro plan",
+    reference: "order_123",
+    successUrl: "https://your-site.com/success",
+    cancelUrl: "https://your-site.com/cancel",
+  }),
+});
+
+const session = await res.json();
+// session.id  -> store this with your order
+// session.url -> redirect the customer here
+```
+
+</CodeGroup>
+
+The response (`201 Created`) contains the session and its hosted `url`:
+
+```json
+{
+  "id": "cmqx8r2f00012abcde34fghij",
+  "url": "https://checkout.meru.com/c/cmqx8r2f00012abcde34fghij",
+  "reference": "order_123",
+  "description": "Pro plan",
+  "amountFiat": "50",
+  "fiatCurrency": "USD",
+  "paymentMethod": null,
+  "availableMethods": ["mesh", "qr_bolivia"],
+  "status": "created",
+  "createdAt": "2026-06-28T12:00:00.000Z",
+  "expiresAt": "2026-06-28T12:30:00.000Z",
+  "paidAt": null
+}
+```
+
+</Step>
+
+<Step title="Redirect the customer to the hosted page">
+
+Send the customer to `session.url`. From a server you typically issue an HTTP
+redirect; from a button you can link directly.
+
+```html
+<a href="https://checkout.meru.com/c/cmqx8r2f00012abcde34fghij">
+  Pay $50.00
+</a>
+```
+
+In a Node/Express backend you can redirect right after creating the session:
+
+```js
+app.post("/checkout", async (req, res) => {
+  const session = await createCheckoutSession(req.body); // the call from step 1
+  res.redirect(303, session.url);
+});
+```
+
+</Step>
+
+<Step title="Customer pays on the hosted page">
+
+The customer completes the payment on `checkout.meru.com`. On success they are
+redirected to your `successUrl`; on cancel, to your `cancelUrl`.
+
+<Warning>
+  Landing on `successUrl` is a **client-side signal**. Always confirm the payment
+  server-side (next step) before fulfilling an order.
+</Warning>
+
+</Step>
+
+<Step title="Confirm the payment by polling">
+
+Poll `GET /checkouts/{id}` from your backend until `status` is terminal. Treat
+`succeeded` as paid. This endpoint is public (keyed by the opaque session id) and
+does not require your secret key.
+
+<CodeGroup>
+
+```bash cURL
+curl https://checkout-api.meru.com/checkouts/cmqx8r2f00012abcde34fghij
+```
+
+```js Node.js
+async function waitForPayment(id, { intervalMs = 3000, timeoutMs = 15 * 60 * 1000 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  const terminal = ["succeeded", "failed", "expired"];
+
+  while (Date.now() < deadline) {
+    const res = await fetch(`https://checkout-api.meru.com/checkouts/${id}`);
+    const session = await res.json();
+    if (terminal.includes(session.status)) return session;
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
+
+  throw new Error("Timed out waiting for payment");
+}
+
+const session = await waitForPayment("cmqx8r2f00012abcde34fghij");
+if (session.status === "succeeded") {
+  // Mark order_123 as paid and fulfill it.
+}
+```
+
+</CodeGroup>
+
+</Step>
+
+</Steps>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Create a session" icon="plus" href="/api-reference/checkout/create-session">
+    Every field accepted by `POST /v1/checkouts`.
+  </Card>
+  <Card title="Payment status" icon="magnifying-glass" href="/api-reference/checkout/payment-status">
+    The full status lifecycle and the `qr` object.
+  </Card>
+  <Card title="Payment methods" icon="credit-card" href="/api-reference/checkout/payment-methods">
+    Crypto exchanges vs QR Bolivia.
+  </Card>
+  <Card title="Embed (iframe)" icon="code" href="/api-reference/checkout/embed">
+    Embed the checkout instead of redirecting.
+  </Card>
+</CardGroup>

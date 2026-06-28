@@ -1,0 +1,161 @@
+---
+title: "Checkout Payment Status"
+sidebarTitle: "Payment status"
+description: "GET /checkouts/{id} — read a checkout session and poll its status to reconcile payments server-side."
+---
+
+```
+GET https://checkout-api.meru.com/checkouts/{id}
+```
+
+Returns the checkout session object (the same shape returned by
+[Create a session](/api-reference/checkout/create-session)). Poll this endpoint to
+reconcile payments from your backend.
+
+<Note>
+  This endpoint is **public** — it is keyed by the opaque session `id` and does not
+  require your secret key. The session id is pay-only and cannot read your account.
+</Note>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The checkout session id returned when the session was created.
+</ParamField>
+
+## Status lifecycle
+
+The `status` field moves through the following states. `succeeded`, `failed`, and
+`expired` are terminal.
+
+| Status       | Meaning                                              |
+| ------------ | ---------------------------------------------------- |
+| `created`    | Session created, no payment yet.                     |
+| `pending`    | Payment started (widget opened / QR generated).      |
+| `processing` | Transfer in flight.                                  |
+| `succeeded`  | Paid. **Terminal** — treat as paid.                  |
+| `failed`     | Payment failed. **Terminal**.                        |
+| `expired`    | Session window elapsed. **Terminal**.                |
+
+<Note>
+  Treat `succeeded` as the only signal that the payment is complete. Fulfill orders
+  only after observing `succeeded` from this endpoint.
+</Note>
+
+## The `qr` object
+
+For QR Bolivia, the `qr` field is `null` until a QR is generated, then populated
+with:
+
+<ResponseField name="paymentId" type="string">
+  The underlying QR payment identifier.
+</ResponseField>
+
+<ResponseField name="qrCode" type="string">
+  Renderable QR image as a data-URL PNG.
+</ResponseField>
+
+<ResponseField name="qrPayload" type="string">
+  The raw QR payload string.
+</ResponseField>
+
+<ResponseField name="state" type="string">
+  The QR payment state.
+</ResponseField>
+
+<ResponseField name="expiresAt" type="string">
+  ISO-8601 timestamp when the QR expires.
+</ResponseField>
+
+<ResponseField name="localAmount" type="string">
+  Amount in local currency, for example `"475.00"`.
+</ResponseField>
+
+<ResponseField name="localCurrency" type="string">
+  Local currency code, for example `"BOB"`.
+</ResponseField>
+
+<ResponseField name="rate" type="string">
+  The USD&rarr;local exchange rate used, for example `"9.50"`.
+</ResponseField>
+
+## Polling
+
+<CodeGroup>
+
+```bash cURL
+curl https://checkout-api.meru.com/checkouts/cmqx8r2f00012abcde34fghij
+```
+
+```js Node.js
+async function waitForPayment(id, { intervalMs = 3000, timeoutMs = 15 * 60 * 1000 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  const terminal = ["succeeded", "failed", "expired"];
+
+  while (Date.now() < deadline) {
+    const res = await fetch(`https://checkout-api.meru.com/checkouts/${id}`);
+    const session = await res.json();
+    if (terminal.includes(session.status)) return session;
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
+
+  throw new Error("Timed out waiting for payment");
+}
+```
+
+</CodeGroup>
+
+<ResponseExample>
+
+```json 200
+{
+  "id": "cmqx8r2f00012abcde34fghij",
+  "url": "https://checkout.meru.com/c/cmqx8r2f00012abcde34fghij",
+  "reference": "order_123",
+  "description": "Pro plan",
+  "amountFiat": "50",
+  "fiatCurrency": "USD",
+  "paymentMethod": "qr_bolivia",
+  "availableMethods": ["mesh", "qr_bolivia"],
+  "status": "succeeded",
+  "chain": null,
+  "token": null,
+  "txHash": null,
+  "successUrl": "https://your-site.com/success",
+  "cancelUrl": "https://your-site.com/cancel",
+  "metadata": { "orderId": "order_123", "plan": "pro" },
+  "qr": {
+    "paymentId": "payin_3ddd0e5b-6276-4b48-b756-c1fcc9a2efd1",
+    "qrCode": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+    "qrPayload": "00020101021226330014bo.example.qr01081234567852040000...",
+    "state": "funds_received",
+    "expiresAt": "2026-06-28T12:30:00.000Z",
+    "localAmount": "475.00",
+    "localCurrency": "BOB",
+    "rate": "9.50"
+  },
+  "customer": {
+    "name": "Juan Pérez",
+    "email": "juan@example.com",
+    "document": "12345678"
+  },
+  "createdAt": "2026-06-28T12:00:00.000Z",
+  "expiresAt": "2026-06-28T12:30:00.000Z",
+  "paidAt": "2026-06-28T12:07:42.000Z"
+}
+```
+
+</ResponseExample>
+
+### Error Responses
+
+<ResponseExample>
+
+```json 404
+{
+  "success": false,
+  "error": "Not Found"
+}
+```
+
+</ResponseExample>
